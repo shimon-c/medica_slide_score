@@ -24,6 +24,10 @@ class PredictImgs:
     def get_model_args(self):
         return self.net.get_model_args()
 
+    def to(self,dev):
+        self.net = self.net.to(dev)
+        return self
+
     @torch.no_grad()
     def predict(self, imgs_list:list=[], inference_flag=False):
         N = len(imgs_list)
@@ -62,7 +66,7 @@ def full_test():
     xsize,ysize = model_args['xsize'], model_args['ysize']
     test_good, test_bad=model_args['test_good'], model_args['test_bad']
     test_dir = model_args['test_set_dir']
-    test_ds = slidecore.datatset.DataSet(root_dir=test_dir,
+    test_ds = slidecore.net.datatset.DataSet(root_dir=test_dir,
                                          good_path=test_good, bad_path=test_bad,
                                          xsize=xsize, ysize=ysize, test_flag=True)
     test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
@@ -78,7 +82,7 @@ if __name__ == '__main__':
     model_path=r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_6_acc_92.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_12_0.921743.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_14_acc_93.pt"
-    model_path=r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\slidecore\model\resnet_epoch_39_0.892.pt"
+    model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\resnet_epoch_14_0.912748.pt"
     pi = PredictImgs(model_path=model_path)
     img1 = cv2.imread(im1)
     img2 = cv2.imread(im2)
