@@ -1,9 +1,12 @@
 import torch
 import slidecore
 import slidecore.net.ensemble
+from slidecore.net.ensemble import Ensemble as Ensemble
+from slidecore.net.resnet import ResNet as ResNet
 import numpy as np
 import cv2
 import torchvision
+import os
 
 
 class PredictImgs:
@@ -17,6 +20,9 @@ class PredictImgs:
         self.devstr = devstr
         self.net.eval()
         self.to_tensor = torchvision.transforms.ToTensor()
+
+    def get_model_args(self):
+        return self.net.get_model_args()
 
     @torch.no_grad()
     def predict(self, imgs_list:list=[], inference_flag=False):
@@ -35,6 +41,33 @@ class PredictImgs:
             y = self.net(x)
         y_np = y.cpu().detach().numpy()
         return y_np
+
+import argparse
+def parse_args():
+    ap = argparse.ArgumentParser('Ensemble')
+    ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
+    args = ap.parse_args()
+    return args
+
+import slidecore.net.train1
+def full_test():
+    args = parse_args()
+    ensemble_flag = True if 'ensemble' in args.model_path else False
+    cls = PredictImgs(model_path=args.model_path, ensemble_flag=ensemble_flag)
+    out_model_path = os.path.join(os.path.dirname(args.model_path), 'output_model')
+    os.makedirs(out_model_path, exist_ok=True)
+    print(f'output-dir:{out_model_path}')
+    model_args = cls.get_model_args()
+    xsize,ysize = model_args['xsize'], model_args['ysize']
+    test_good, test_bad=model_args['test_good'], model_args['test_bad']
+    test_dir = model_args['test_set_dir']
+    test_ds = slidecore.datatset.DataSet(root_dir=test_dir,
+                                         good_path=test_good, bad_path=test_bad,
+                                         xsize=xsize, ysize=ysize, test_flag=True)
+    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
+    cls = cls.to('cuda')
+    acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True)
+    print(f'acc={acc}\n conf_mat:\n{conf_mat}')
 
 if __name__ == '__main__':
     im1=r"C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set\GoodFocus\GoodFocus_ANONJSBHSI1F2_1_1_level_17_size_840\4_19.jpeg"
@@ -55,3 +88,5 @@ if __name__ == '__main__':
 
     res = pi.predict(imgs, inference_flag=True)
     print(f'inference_res={res}')
+
+    full_test()

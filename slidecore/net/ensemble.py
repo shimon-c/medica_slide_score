@@ -32,6 +32,22 @@ class Ensemble(nn.Module):
         y = y / len(self.models)
         return y
 
+    # Make inference default 50 pixels, and size=3
+    def infer(self, x, offset=50, inference_size=3):
+        y = None
+        for m in self.models:
+            cur_y = m.infer(x, offset=offset, inference_size=inference_size)
+            if y is None:
+                y = cur_y
+            else:
+                y += cur_y
+        y = y / len(self.models)
+        return y
+
+    def get_model_args(self):
+        args = self.models[0].get_model_args()
+        return args
+
     def save(self, dir:str=''):
         fname = os.path.join(dir, 'ensemble.pt')
         args_list = [(m.args,m.state_dict()) for m in self.models]

@@ -153,7 +153,7 @@ class ResNet(nn.Module):
             res_units.append(nn.MaxPool2d(kernel_size=2,stride=2))
             xsize//=2
             ysize//=2
-            if xsize<=2 or ysize<=2:
+            if xsize<=min_feat_map_size or ysize<=min_feat_map_size:
                 break
         # This addition didnt really help we might consider to add smaller units
         # OR ignore it and perform average...
@@ -175,6 +175,9 @@ class ResNet(nn.Module):
     def set_max_hcf(self, max_hcf=[]):
         self.max_hcfs = max_hcf
 
+    def get_model_args(self):
+        return self.args
+    # resize tensors and normalized them
     def norm(self,X):
         X = nn.functional.interpolate(X,size=(self.ysize, self.xsize), mode='bilinear')
         N, C, H, W = X.shape
