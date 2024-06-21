@@ -42,6 +42,7 @@ class PredictImgs:
         y_np = y.cpu().detach().numpy()
         return y_np
 
+# Ability to test full work
 import argparse
 def parse_args():
     ap = argparse.ArgumentParser('Ensemble')
