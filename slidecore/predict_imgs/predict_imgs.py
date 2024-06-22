@@ -3,6 +3,7 @@ import slidecore
 import slidecore.net.ensemble
 from slidecore.net.ensemble import Ensemble as Ensemble
 from slidecore.net.resnet import ResNet as ResNet
+import slidecore.net.datatset
 import numpy as np
 import cv2
 import torchvision
@@ -27,6 +28,12 @@ class PredictImgs:
     def to(self,dev):
         self.net = self.net.to(dev)
         return self
+
+    def eval(self):
+        self.net.eval()
+
+    def __call__(self, x, *args, **kwargs):
+        return self.net(x)
 
     @torch.no_grad()
     def predict(self, imgs_list:list=[], inference_flag=False):
