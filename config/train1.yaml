@@ -29,8 +29,8 @@ optim: 'SGD'
 #optim: 'Adam'
 lr: 0.01
 sched: "cosine"
-
-checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\medica\medica\checkpoints'
+desc: 'New test'
+checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
 ##### Data set Params   #############
 #train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set'
 train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set'

@@ -76,7 +76,8 @@ def full_test():
     test_ds = slidecore.net.datatset.DataSet(root_dir=test_dir,
                                          good_path=test_good, bad_path=test_bad,
                                          xsize=xsize, ysize=ysize, test_flag=True)
-    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
+    batch_size = 12
+    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
     cls = cls.to('cuda')
     acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True)
     print(f'acc={acc}\n conf_mat:\n{conf_mat}')

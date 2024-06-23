@@ -68,6 +68,11 @@ def compute_acc(net=None, loader=None, calc_conf_mat=False, device='cuda'):
         conf_mat = confusion_matrix(y_true, y_pred)
     return acc,conf_mat
 
+def test_net(model_path, loader=None):
+    resnet, args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
+    restnet = resnet.to(device)
+    acc, confm = compute_acc(net=resnet,loader=loader)
+    print(f'Accuracy:{acc}')
 
 def train(args, log_obj=None):
     nepochs = args['nepochs']
@@ -118,7 +123,8 @@ def train(args, log_obj=None):
         train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim, loss_obj=loss_obj)
         test_acc,_ = compute_acc(net=resnet, loader=test_ld)
         model_path = os.path.join(checkpoint_dir, f'resnet_epoch_{ep}.pt')
-        resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
+        save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
+        test_net(save_name, loader=test_ld)
         sched.step()
         log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()}"
         print(log_str)

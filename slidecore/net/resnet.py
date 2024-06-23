@@ -255,6 +255,7 @@ class ResNet(nn.Module):
             'epoch':    epoch
         }
         torch.save(dct, file_path)
+        return file_path
 
     @staticmethod
     def load(file_path=None):

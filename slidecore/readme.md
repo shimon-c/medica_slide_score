@@ -1,6 +1,7 @@
 slidecore algos:
 how to train:
 python slidescore\net\train1.py --yaml_path C:\Users\shimon.cohen\PycharmProjects\medica\medica\config\train1.yaml
+python slidecore\net\train1.py --yaml_path C:\Users\shimon.cohen\PycharmProjects\medica_slide_score\config\train1.yaml
 
 The train parameters are in the yamlfile above. These parameters dictate the architecture of the net
 as well as the augmentation.
