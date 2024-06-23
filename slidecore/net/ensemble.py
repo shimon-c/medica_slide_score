@@ -76,6 +76,7 @@ import argparse
 def parse_args():
     ap = argparse.ArgumentParser('Ensemble')
     ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
+    ap.add_argument('--test_ensemble', type=bool, default=True, help="Performs test on full test images")
     args = ap.parse_args()
     return args
 
@@ -87,17 +88,19 @@ if __name__ == '__main__':
     os.makedirs(ens_model_path, exist_ok=True)
     print(f'output-dir:{ens_model_path}')
     model_name = ens.save(ens_model_path)
-    ens = Ensemble.load(model_path=model_name)
-    print(f'Enemsble len:{len(ens.models)}')
-    model_args = ens.models[0].args
-    xsize,ysize = model_args['xsize'], model_args['ysize']
-    test_good, test_bad=model_args['test_good'], model_args['test_bad']
-    test_dir = model_args['test_set_dir']
-    test_ds = slidecore.datatset.DataSet(root_dir=test_dir,
-                                         good_path=test_good, bad_path=test_bad,
-                                         xsize=xsize, ysize=ysize, test_flag=True)
-    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
-    ens = ens.to('cuda')
-    acc, conf_mat = slidecore.net.train1.compute_acc(net=ens, loader=test_ld, calc_conf_mat=True)
-    print(f'acc={acc}\n conf_mat:\n{conf_mat}')
+    print(f'Ensemble saved: {model_name}')
+    if args.test_ensemble :
+        ens = Ensemble.load(model_path=model_name)
+        print(f'Enemsble len:{len(ens.models)}')
+        model_args = ens.models[0].args
+        xsize,ysize = model_args['xsize'], model_args['ysize']
+        test_good, test_bad=model_args['test_good'], model_args['test_bad']
+        test_dir = model_args['test_set_dir']
+        test_ds = slidecore.datatset.DataSet(root_dir=test_dir,
+                                             good_path=test_good, bad_path=test_bad,
+                                             xsize=xsize, ysize=ysize, test_flag=True)
+        test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
+        ens = ens.to('cuda')
+        acc, conf_mat = slidecore.net.train1.compute_acc(net=ens, loader=test_ld, calc_conf_mat=True)
+        print(f'acc={acc}\n conf_mat:\n{conf_mat}')
 
