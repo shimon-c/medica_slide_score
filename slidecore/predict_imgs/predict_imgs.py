@@ -11,7 +11,7 @@ import os
 
 
 class PredictImgs:
-    def __init__(self, model_path=None, gpu=0, ensemble_flag=False):
+    def __init__(self, model_path=None, gpu=0, ensemble_flag=False, inference_size=0):
         if ensemble_flag:
             self.net = slidecore.net.ensemble.Ensemble(model_path=model_path)
         else:
@@ -19,6 +19,7 @@ class PredictImgs:
         devstr = devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
         self.net = self.net.to(devstr)
         self.devstr = devstr
+        self.inference_size = inference_size
         self.net.eval()
         self.to_tensor = torchvision.transforms.ToTensor()
 
@@ -33,23 +34,33 @@ class PredictImgs:
         self.net.eval()
 
     def __call__(self, x, *args, **kwargs):
-        return self.net(x)
+        if self.inference_size<=0:
+            return self.net(x)
+        else:
+            return self.predict(imgs_list=x, inference_size=self.inference_size)
 
     @torch.no_grad()
-    def predict(self, imgs_list:list=[], inference_flag=False):
-        N = len(imgs_list)
-        H,W,C = imgs_list[0].shape
-        ten = torch.zeros((N,C,H,W), dtype=torch.float32)
-        for k in range(N):
-            img = imgs_list[k].astype(np.float32)
-            img = self.to_tensor(img)
-            ten[k,...] = img
+    def predict(self, imgs_list:list=[], inference_size=False):
+        return_ten = False
+        if type(imgs_list) is list:
+            N = len(imgs_list)
+            H,W,C = imgs_list[0].shape
+            ten = torch.zeros((N,C,H,W), dtype=torch.float32)
+            for k in range(N):
+                img = imgs_list[k].astype(np.float32)
+                img = self.to_tensor(img)
+                ten[k,...] = img
+        else:
+            ten = imgs_list
+            return_ten = True
         # move to device
         x = ten.to(self.devstr)
-        if inference_flag:
-            y = self.net.infer(x)
+        if inference_size>0:
+            y = self.net.infer(x, inference_size=inference_size)
         else:
             y = self.net(x)
+        if return_ten:
+            return y
         y_np = y.cpu().detach().numpy()
         return y_np
 
@@ -58,6 +69,7 @@ import argparse
 def parse_args():
     ap = argparse.ArgumentParser('Ensemble')
     ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
+    ap.add_argument('--inference_size', type=int, default=0, help="perform ineference")
     args = ap.parse_args()
     return args
 
@@ -65,7 +77,7 @@ import slidecore.net.train1
 def full_test():
     args = parse_args()
     ensemble_flag = True if 'ensemble' in args.model_path else False
-    cls = PredictImgs(model_path=args.model_path, ensemble_flag=ensemble_flag)
+    cls = PredictImgs(model_path=args.model_path, ensemble_flag=ensemble_flag, inference_size=args.inference_size)
     out_model_path = os.path.join(os.path.dirname(args.model_path), 'output_model')
     os.makedirs(out_model_path, exist_ok=True)
     print(f'output-dir:{out_model_path}')
@@ -90,7 +102,7 @@ if __name__ == '__main__':
     model_path=r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_6_acc_92.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_12_0.921743.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_14_acc_93.pt"
-    model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\resnet_epoch_14_0.912748.pt"
+    model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\resnet_epoch_26_0.919474.pt"
     pi = PredictImgs(model_path=model_path)
     img1 = cv2.imread(im1)
     img2 = cv2.imread(im2)
@@ -99,7 +111,7 @@ if __name__ == '__main__':
     res = pi.predict(imgs)
     print(f'res={res}')
 
-    res = pi.predict(imgs, inference_flag=True)
+    res = pi.predict(imgs, inference_size=3)
     print(f'inference_res={res}')
 
     full_test()
