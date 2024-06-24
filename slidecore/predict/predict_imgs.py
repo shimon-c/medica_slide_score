@@ -85,6 +85,8 @@ def full_test():
     xsize,ysize = model_args['xsize'], model_args['ysize']
     test_good, test_bad=model_args['test_good'], model_args['test_bad']
     test_dir = model_args['test_set_dir']
+    # there is a problem of the initial size
+    xsize,ysize=380,380
     test_ds = slidecore.net.datatset.DataSet(root_dir=test_dir,
                                          good_path=test_good, bad_path=test_bad,
                                          xsize=xsize, ysize=ysize, test_flag=True)
