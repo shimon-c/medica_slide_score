@@ -4,7 +4,7 @@
 doClean=false
 venvName="venv"
 pyt=python3.11
-PIPInstallType=development
+PIPInstallType=train
 
 
 ThisScriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

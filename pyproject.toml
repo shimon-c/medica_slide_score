@@ -24,15 +24,20 @@ dependencies = [
     "torch==2.2.2",
     "torchvision==0.17.2",
     "albumentations==1.1.0",
+    "numpy==1.24.4",
+    "PyYAML",
     "opencv-python",
-    "numpy",
-    "PyYAML"
 ]
 
 
 [project.optional-dependencies]
 development = [
     "pytest",
+]
+train = [
+    "slidecore[development]",
+    "matplotlib",
+    "tqdm==4.59.0"
 ]
 
 
