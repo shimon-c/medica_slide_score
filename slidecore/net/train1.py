@@ -12,11 +12,13 @@ import shutil
 import logging
 
 
-arch=[(64,3), (128,4), (256,6),(512,3)]
-head_arch=[18,32]
-device = 'cuda'
-xsize,ysize=128,128
-def train_epoch(net=None, loader=None, optim=None, loss_obj=None):
+#arch=[(64,3), (128,4), (256,6),(512,3)]
+#head_arch=[18,32]
+#device = 'cuda'
+#xsize,ysize=128,128
+
+
+def train_epoch(net=None, loader=None, optim=None, loss_obj=None, device='cuda'):
     train_loss = 0
     correct = 0
     total = 0
@@ -61,20 +63,21 @@ def compute_acc(net=None, loader=None, calc_conf_mat=False, device='cuda'):
         nok += pr.eq(tt).sum().item()
         N += target.shape[0]
         y_pred.extend(pr.tolist())
-        y_true.extend(tt.tolist())
-    N = len(y_true)
-    acc = nok/N
-    if calc_conf_mat:
-        conf_mat = confusion_matrix(y_true, y_pred)
+        y_true.extend(tt.tolist59106342trix(y_true, y_pred)
     return acc,conf_mat
 
-def test_net(model_path, loader=None):
+def test_net(model_path, loader=None, device='cuda'):
     resnet, args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
     restnet = resnet.to(device)
-    acc, confm = compute_acc(net=resnet,loader=loader)
+    acc, confm = compute_acc(net=resnet,loader=loader, device=device)
     print(f'Accuracy:{acc}')
 
 def train(args, log_obj=None):
+    device = args['device']
+    if device == 'cuda':
+        if not torch.cuda.is_available():
+            log_obj.error("Requested cuda but cuda device is not found on this host")
+            return
     nepochs = args['nepochs']
     xsize, ysize = args['xsize'], args['ysize']
 
@@ -120,16 +123,16 @@ def train(args, log_obj=None):
     log_obj.info(str(args))
     log_obj.info('-------------------------------')
     for ep in range(nepochs):
-        train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim, loss_obj=loss_obj)
-        test_acc,_ = compute_acc(net=resnet, loader=test_ld)
+        train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim, loss_obj=loss_obj, device=device)
+        test_acc,_ = compute_acc(net=resnet, loader=test_ld, device=device)
         model_path = os.path.join(checkpoint_dir, f'resnet_epoch_{ep}.pt')
         save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
-        test_net(save_name, loader=test_ld)
+        test_net(save_name, loader=test_ld, device=device)
         sched.step()
         log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()}"
         print(log_str)
         log_obj.info(log_str)
-    test_acc, cmat = compute_acc(net=resnet, loader=test_ld, calc_conf_mat=True)
+    test_acc, cmat = compute_acc(net=resnet, loader=test_ld, calc_conf_mat=True, device=device)
     model_path = os.path.join(checkpoint_dir, 'resnet.pt')
     resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
     print(f'Final accuracy:{test_acc}, conf_mat:\n{cmat}\nmodel:{model_path}')
@@ -139,14 +142,15 @@ def train(args, log_obj=None):
 
 
 ############################ Test Path #####################
-train_set_dir = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set"
-test_set_dir = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set"
-def get_train_valid_paths():
-    train_good = os.path.join(train_set_dir,"GoodFocus")
-    train_bad = os.path.join(train_set_dir, "BadFocus")
-    train_relv = os.path.join(train_set_dir, "NotRelevant")
-    test_good = os.path.join(test_set_dir, "GoodFocus")
-    test_bad = os.path.join(test_set_dir, "BadFocus")
+# train_set_dir = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set"
+# test_set_dir = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set"
+
+def get_train_valid_paths(args):
+    train_good = os.path.join(args['train_set_dir'],"GoodFocus")
+    train_bad = os.path.join(args['train_set_dir'], "BadFocus")
+    train_relv = os.path.join(args['train_set_dir'], "NotRelevant")
+    test_good = os.path.join(args['test_set_dir'], "GoodFocus")
+    test_bad = os.path.join(args['test_set_dir'], "BadFocus")
     return (train_good, train_bad, train_relv), (test_good, test_bad)
 
 import argparse
@@ -159,8 +163,8 @@ def get_args():
     return yaml_args
 
 if __name__ == "__main__":
-    train_data, test_data = get_train_valid_paths()
     args = get_args()
+    train_data, test_data = get_train_valid_paths(args)
     logger = logging.getLogger(__name__)
     chk_pnts = args['checkpoints_dir']
     #os.rmdir(chk_pnts, )
