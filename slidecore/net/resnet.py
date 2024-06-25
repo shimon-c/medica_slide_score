@@ -236,7 +236,7 @@ class ResNet(nn.Module):
         y = None
         for k in range(inference_size):
             sx,sy=random.randint(0,offset),random.randint(0,offset)
-            cur_x = x[:,:,sy:,sx:]
+            cur_x = x[:,:,sy:sy+self.ysize,sx:sx+self.xsize]
             cur_y = self(cur_x)
             if y is None:
                 y = cur_y
