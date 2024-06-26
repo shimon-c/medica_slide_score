@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 import torchvision.transforms as transforms
+from albumentations.core.transforms_interface import ImageOnlyTransform
 # RandomResizedCrop
 # A.CLAHE(p=0.1),
 #         A.Posterize(p=0.1),
 #         A.ToGray(p=0.1),
 #         A.ChannelShuffle(p=0.05),
 import albumentations as A
-from albumentations.core.transforms_interface import ImageOnlyTransform
 from albumentations import (
     HorizontalFlip, ShiftScaleRotate, CLAHE, RandomRotate90,
     Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
@@ -21,16 +21,14 @@ from albumentations import (
 )
 
 class CutOff(ImageOnlyTransform):
-    def __init__(self):
-        super(CutOff, self).__init__()
-        self.cutoff_size = 20
-
-    def apply(self, img, **params):
-        H,W,C = img.shape
-        x,y,sz = random.randint(W-self.cutoff_size), random.randint(H-self.cutoff_size), random.randint(self.cutoff_size)
-        img[y:y+sz,x:x+sz,:] = 0
-        return img
-
+    def __init__(self, sz=10):
+        super(ImageOnlyTransform,self).__init__()
+        self.sz = sz
+    def apply(self, image,**params):
+        H,W,C = image.shape
+        sx,sy = random.randint(0,W-self.sz), random.randint(0,H-self.sz)
+        image[sy:sy+self.sz, sx:sx+self.sz,:] = 0
+        return image
 #dataset for good/bad
 class DataSet(TorchDataset):
     GOOD_IMG=0
@@ -82,7 +80,7 @@ class DataSet(TorchDataset):
                     aug_list.append(A.Posterize(p=0.1))
                 elif 'Hue' in aug:
                     aug_list.append(A.HueSaturationValue())
-                elif 'CutOff' in aug:
+                elif 'CufOff' in aug:
                     aug_list.append(CutOff())
             print(f'dataset #augs: {len(aug_list)}')
             # I think this augmentation is problematic I need here just resize
