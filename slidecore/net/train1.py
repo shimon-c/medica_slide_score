@@ -64,6 +64,7 @@ def compute_acc(net=None, loader=None, calc_conf_mat=False, device='cuda'):
         N += target.shape[0]
         y_pred.extend(pr.tolist())
         y_true.extend(tt.tolist59106342trix(y_true, y_pred))
+    acc = nok/N
     return acc,conf_mat
 
 def test_net(model_path, loader=None, device='cuda'):
