@@ -1,0 +1,48 @@
+# Model
+#xsize: 128
+#ysize: 128
+xsize: 256
+ysize: 256
+batch_size: 12
+#arch: [[64,3], [128,4], [256,6],[512,3]]
+#arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
+arch: [[6,3],[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
+arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
+head_arch: [3000, 3000]
+head_arch: [2048, 2048, 1024]
+#head_arch: [2048, 2048]
+resnet50: True
+shortcut2: False
+arc_cos_rad: -1
+arc_cos_margin: 0.0
+device: 'cuda'
+in_ch: 3
+out_cls: 3 # 3
+res_unit_out_relu: True
+hcf_list: [std]
+hcf_list: []
+dropout: 0
+min_feat_map_size: 4
+weight_decay: 0.0001 #0.0001
+# optimizers
+optim: 'SGD'
+#optim: 'Adam'
+lr: 0.01
+sched: "cosine"
+desc: 'New test'
+checkpoints_dir: '/home/dudi/dev/pathology/slidecore/output/model/checkpoints'
+
+##### Data set Params   #############
+train_set_dir: '/home/dudi/dev/pathology/imgdb/train_set'
+test_set_dir: '/home/dudi/dev/pathology/imgdb/test_set'
+train_good: 'GoodFocus'
+train_bad: 'BadFocus'
+train_relv: 'NotRelevant'
+test_good: 'GoodFocus'
+test_bad: 'BadFocus'
+end_str: '.jpeg'
+
+nepochs: 40
+
+augmentations: [RandomScale, GaussNoise, Blur, OpticalDistortion, Flip]
+#augmentations: [RandomScale, GaussNoise, Blur, OpticalDistortion, Flip, CLAHE,Posterize]

@@ -9,7 +9,7 @@ You should add to your PYTHONPATH the current directory.
 
 predict_imgs:
 It can predict for several image at one time (batch).
-python slidescore\predict_imgs\predict_imgs 
+python slidescore\predict\predict_imgs
 
 Creating an Ensemble:
 python slidescore\net\ensemble.py --model_path "fullpath of a model"
