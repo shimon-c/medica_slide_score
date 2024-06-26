@@ -13,7 +13,7 @@ import os
 class PredictImgs:
     def __init__(self, model_path=None, gpu=0, ensemble_flag=False, inference_size=0):
         if ensemble_flag:
-            self.net = slidecore.net.ensemble.Ensemble(model_path=model_path)
+            self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
             self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
         devstr = devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
@@ -90,7 +90,7 @@ def full_test():
     test_ds = slidecore.net.datatset.DataSet(root_dir=test_dir,
                                          good_path=test_good, bad_path=test_bad,
                                          xsize=xsize, ysize=ysize, test_flag=True)
-    batch_size = 12
+    batch_size = 6
     test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
     cls = cls.to('cuda')
     acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     model_path=r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_6_acc_92.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_12_0.921743.pt"
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_14_acc_93.pt"
-    model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\resnet_epoch_26_0.919474.pt"
+    model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
     pi = PredictImgs(model_path=model_path)
     img1 = cv2.imread(im1)
     img2 = cv2.imread(im2)

@@ -98,8 +98,11 @@ def train(args, log_obj=None):
     test_ds = slidecore.net.datatset.DataSet(root_dir=args['test_set_dir'],
                                          good_path=test_good, bad_path=test_bad,
                                          xsize=xsize, ysize=ysize, test_flag=True)
-    tr_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, shuffle=True)
-    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+    num_workers = args.get('num_workers', 1)
+    tr_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, shuffle=True,
+                                            num_workers=num_workers)
+    test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size,
+                                          shuffle=False, num_workers=num_workers)
     weight_decay = args['weight_decay']
     lr = args.get('lr')
     if lr is None:

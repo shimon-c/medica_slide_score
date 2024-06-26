@@ -12,12 +12,25 @@ import torchvision.transforms as transforms
 #         A.ToGray(p=0.1),
 #         A.ChannelShuffle(p=0.05),
 import albumentations as A
+from albumentations.core.transforms_interface import ImageOnlyTransform
 from albumentations import (
     HorizontalFlip, ShiftScaleRotate, CLAHE, RandomRotate90,
     Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
     GaussNoise, MotionBlur, MedianBlur,Resize,RandomScale , HorizontalFlip ,
     RandomBrightnessContrast, Flip, OneOf, Compose, CLAHE, Posterize
 )
+
+class CutOff(ImageOnlyTransform):
+    def __init__(self):
+        super(CutOff, self).__init__()
+        self.cutoff_size = 20
+
+    def apply(self, img, **params):
+        H,W,C = img.shape
+        x,y,sz = random.randint(W-self.cutoff_size), random.randint(H-self.cutoff_size), random.randint(self.cutoff_size)
+        img[y:y+sz,x:x+sz,:] = 0
+        return img
+
 #dataset for good/bad
 class DataSet(TorchDataset):
     GOOD_IMG=0
@@ -69,6 +82,8 @@ class DataSet(TorchDataset):
                     aug_list.append(A.Posterize(p=0.1))
                 elif 'Hue' in aug:
                     aug_list.append(A.HueSaturationValue())
+                elif 'CutOff' in aug:
+                    aug_list.append(CutOff())
             print(f'dataset #augs: {len(aug_list)}')
             # I think this augmentation is problematic I need here just resize
             #aug_list.append(A.Resize(height=ysize, width=xsize))

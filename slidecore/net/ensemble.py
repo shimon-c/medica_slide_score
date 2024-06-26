@@ -17,7 +17,7 @@ class Ensemble(nn.Module):
         self.num_classes = None
 
         for chk_pnt in model_list:
-            resnet,args, optim_params,sched_params,epoch = slidecore.resnet.ResNet.load(chk_pnt)
+            resnet,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(chk_pnt)
             resnets.append(resnet)
         self.models = nn.ModuleList(resnets)
 
@@ -65,7 +65,7 @@ class Ensemble(nn.Module):
         n = len(args)
         net_list = []
         for margs, stat_dict in args:
-            resnet = slidecore.resnet.ResNet(args=margs)
+            resnet = slidecore.net.resnet.ResNet(args=margs)
             resnet.load_state_dict(state_dict=stat_dict)
             net_list.append(resnet)
         ens = Ensemble(model_path=None)
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         xsize,ysize = model_args['xsize'], model_args['ysize']
         test_good, test_bad=model_args['test_good'], model_args['test_bad']
         test_dir = model_args['test_set_dir']
-        test_ds = slidecore.datatset.DataSet(root_dir=test_dir,
+        test_ds = slidecore.net.datatset.DataSet(root_dir=test_dir,
                                              good_path=test_good, bad_path=test_bad,
                                              xsize=xsize, ysize=ysize, test_flag=True)
         test_ld = torch.utils.data.DataLoader(test_ds, batch_size=6, shuffle=False)
