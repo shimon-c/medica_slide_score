@@ -124,7 +124,7 @@ def train(args, log_obj=None):
         test_acc,_ = compute_acc(net=resnet, loader=test_ld)
         model_path = os.path.join(checkpoint_dir, f'resnet_epoch_{ep}.pt')
         save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
-        test_net(save_name, loader=test_ld)
+        #test_net(save_name, loader=test_ld)
         sched.step()
         log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()}"
         print(log_str)
