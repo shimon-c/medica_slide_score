@@ -2,6 +2,9 @@ import os.path
 import matplotlib.pyplot as plt
 import torch
 import slidecore
+import slidecore.net
+#import slidecore.net.gpu_utils
+
 from slidecore.net.resnet import ResNet
 from slidecore.net.datatset import DataSet
 import tqdm
@@ -10,8 +13,15 @@ from sklearn.metrics import confusion_matrix
 import slidecore.net.yaml_obj
 import shutil
 import logging
-import slidecore.net.gpu_utils
 
+#from slidecore.net.gpu_utils import get_devstr
+
+def get_devstr(gpu:int=0):
+    devstr = 'cpu'
+    cnt = dev_cnt = torch.cuda.device_count()
+    if gpu>=0 and gpu<cnt:
+        devstr = f'cuda:{gpu}'
+    return devstr
 
 # arch=[(64,3), (128,4), (256,6),(512,3)]
 # head_arch=[18,32]
@@ -78,7 +88,7 @@ def test_net(model_path, loader=None, device=None):
 def train(args, log_obj=None):
     nepochs = args['nepochs']
     xsize, ysize = args['xsize'], args['ysize']
-    device = slidecore.net.gpu_utils.get_devstr(args['gpu'])
+    device = get_devstr(args['gpu'])
     good_path ,bad_path,not_rel=args['train_good'],args['train_bad'],args['train_relv']
     test_good, test_bad=args['test_good'], args['test_bad']
     checkpoint_dir = args['checkpoints_dir']
