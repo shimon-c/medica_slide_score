@@ -15,7 +15,7 @@ resnet50: True
 shortcut2: False
 arc_cos_rad: -1
 arc_cos_margin: 0.0
-device: 'cuda'
+gpu: 0
 in_ch: 3
 out_cls: 3 # 3
 res_unit_out_relu: True

@@ -92,8 +92,9 @@ def full_test():
                                          xsize=xsize, ysize=ysize, test_flag=True)
     batch_size = 6
     test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
-    cls = cls.to('cuda')
-    acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True)
+    device = 'cuda:0'
+    cls = cls.to(device)
+    acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True, device=device)
     print(f'acc={acc}\n conf_mat:\n{conf_mat}')
 
 if __name__ == '__main__':

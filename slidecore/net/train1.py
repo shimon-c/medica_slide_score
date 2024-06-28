@@ -121,8 +121,9 @@ def train(args, log_obj=None):
     log_obj.info(str(args))
     log_obj.info('-------------------------------')
     for ep in range(nepochs):
-        train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim, loss_obj=loss_obj)
-        test_acc,_ = compute_acc(net=resnet, loader=test_ld)
+        train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim,
+                                         loss_obj=loss_obj, device=device)
+        test_acc,_ = compute_acc(net=resnet, loader=test_ld, device=device)
         model_path = os.path.join(checkpoint_dir, f'resnet_epoch_{ep}.pt')
         save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
         #test_net(save_name, loader=test_ld)
@@ -130,7 +131,7 @@ def train(args, log_obj=None):
         log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()}"
         print(log_str)
         log_obj.info(log_str)
-    test_acc, cmat = compute_acc(net=resnet, loader=test_ld, calc_conf_mat=True)
+    test_acc, cmat = compute_acc(net=resnet, loader=test_ld, calc_conf_mat=True, device=device)
     model_path = os.path.join(checkpoint_dir, 'resnet.pt')
     resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
     print(f'Final accuracy:{test_acc}, conf_mat:\n{cmat}\nmodel:{model_path}')
