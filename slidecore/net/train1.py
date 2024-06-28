@@ -10,13 +10,14 @@ from sklearn.metrics import confusion_matrix
 import slidecore.net.yaml_obj
 import shutil
 import logging
+import slidecore.net.gpu_utils
 
 
-arch=[(64,3), (128,4), (256,6),(512,3)]
-head_arch=[18,32]
-device = 'cuda'
-xsize,ysize=128,128
-def train_epoch(net=None, loader=None, optim=None, loss_obj=None):
+# arch=[(64,3), (128,4), (256,6),(512,3)]
+# head_arch=[18,32]
+# device = 'cuda'
+# xsize,ysize=128,128
+def train_epoch(net=None, loader=None, optim=None, loss_obj=None, device=None):
     train_loss = 0
     correct = 0
     total = 0
@@ -68,7 +69,7 @@ def compute_acc(net=None, loader=None, calc_conf_mat=False, device='cuda'):
         conf_mat = confusion_matrix(y_true, y_pred)
     return acc,conf_mat
 
-def test_net(model_path, loader=None):
+def test_net(model_path, loader=None, device=None):
     resnet, args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
     restnet = resnet.to(device)
     acc, confm = compute_acc(net=resnet,loader=loader)
@@ -77,7 +78,7 @@ def test_net(model_path, loader=None):
 def train(args, log_obj=None):
     nepochs = args['nepochs']
     xsize, ysize = args['xsize'], args['ysize']
-
+    device = slidecore.net.gpu_utils.get_devstr(args['gpu'])
     good_path ,bad_path,not_rel=args['train_good'],args['train_bad'],args['train_relv']
     test_good, test_bad=args['test_good'], args['test_bad']
     checkpoint_dir = args['checkpoints_dir']
