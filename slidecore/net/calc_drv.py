@@ -2,22 +2,46 @@ import torch
 import numpy as np
 import cv2 as cv
 
-def compute_vertical_drv(x, thr=0.2):
-    N,C,H,W = x.shape
+
+def compute_dx(x):
+    N, C, H, W = x.shape
     if x.dtype != torch.float32:
         x = x.type(torch.float32)
     # Reduce the number of channels, another option to  take the red channel
     x = torch.mean(x, dim=1)
     z_x = torch.zeros_like(x)
-    drv = x[:,:,1:] - x[:,:,0:W-1]
+    drv = x[:, :, 1:] - x[:, :, 0:W - 1]
     drv = torch.abs(drv)
-    z_x[:,:,:W-1] = drv
+    z_x[:, :, :W - 1] = drv
     drv = z_x
+    return drv
+
+def compute_dy(x):
+    N, C, H, W = x.shape
+    if x.dtype != torch.float32:
+        x = x.type(torch.float32)
+    # Reduce the number of channels, another option to  take the red channel
+    x = torch.mean(x, dim=1)
+    z_x = torch.zeros_like(x)
+    drv = x[:, 1:, :] - x[:, 0:H - 1, :]
+    drv = torch.abs(drv)
+    z_x[:, :H - 1, :] = drv
+    drv = z_x
+    return drv
+
+def compute_grad(x):
+    dy = compute_dy(x)
+    dx = compute_dx(x)
+    grad = dx + dy
+    return grad
+
+def compute_vertical_drv(x, thr=0.2):
+    drv = compute_dx(x)
     max_val, max_ids = torch.max(drv,dim=2, keepdim=True)
     drv = drv / max_val
     drv_ids = drv>=thr
-    ones = torch.ones_like(x)
-    zeros = torch.zeros_like(x)
+    ones = torch.ones_like(drv)
+    zeros = torch.zeros_like(drv)
     drv_val = torch.where(drv_ids>0, ones, zeros)
     drv_res = torch.mean(drv_val,dim=1)
     return drv_res
@@ -51,7 +75,13 @@ def vertical_on_image(img_path:str=None):
         img = cv.line(img, start_point, end_point, color=color, thickness=2)
     filename = f'{img_path}_line.jpeg'
     cv.imwrite(filename, img)
-    print(f'imgae:{filename}')
+    print(f'image:{filename}')
+    grd = compute_grad(ten)
+    grd = torch.permute(grd, (1,2,0))
+    grad = grd.numpy()
+    filename = f'{img_path}_grad.jpeg'
+    cv.imwrite(filename, grad)
+    print(f'image-grad:{filename}')
 
 if __name__ == "__main__":
 
@@ -64,7 +94,7 @@ if __name__ == "__main__":
         drv_res = compute_vertical_drv(ten)
         print(drv_res)
 
-    prepare_tens()
+    #prepare_tens()
     args = parse_args()
     vertical_on_image(img_path=args.image_path)
 
