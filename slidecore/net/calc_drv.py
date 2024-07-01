@@ -29,6 +29,19 @@ def compute_dy(x):
     drv = z_x
     return drv
 
+def compute_LoG(x):
+    N, C, H, W = x.shape
+    if x.dtype != torch.float32:
+        x = x.type(torch.float32)
+    x = torch.mean(x, dim=1)
+    z_x = torch.zeros_like(x)
+
+    z_x[:,1:-1,1:-1] = -x[:,1:-1,1:-1]*4 + x[:,0:-2,1:-1] + x[:,2:,1:-1] + x[:,1:-1,2:] + x[:,1:-1,0:-2]
+    zids = z_x<=0
+    z_x[zids] = 0
+    return z_x
+
+
 def compute_grad(x):
     dy = compute_dy(x)
     dx = compute_dx(x)
@@ -82,6 +95,11 @@ def vertical_on_image(img_path:str=None):
     filename = f'{img_path}_grad.jpeg'
     cv.imwrite(filename, grad)
     print(f'image-grad:{filename}')
+    z_x = compute_LoG(ten)
+    z_x = torch.permute(z_x, (1, 2, 0))
+    z_x = z_x.numpy()
+    filename = f'{img_path}_LoG.jpeg'
+    cv.imwrite(filename, z_x)
 
 if __name__ == "__main__":
 
