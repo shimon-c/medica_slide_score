@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 import slidecore
 import slidecore.net.create_head_utils
 import random
+import slidecore.net.calc_drv
 
 relu = F.relu
 relu6 = F.relu6
@@ -137,6 +138,10 @@ class ResNet(nn.Module):
         block = Bottleneck if resnet_50 else ResUnit
         self.to_tensor = transforms.ToTensor()
         self.std_flag = 'std' in args['hcf_list']
+        self.log_var = 'LoG' in args['hcf_list']
+        if self.log_var:
+            in_ch += 1
+
         min_feat_map_size = args.get('min_feat_map_size', 2)
         self.dropout = None
         self.max_hcfs = []
@@ -166,6 +171,7 @@ class ResNet(nn.Module):
             ysize //= 2
         self.layers_list = nn.ModuleList(res_units)
         ch += self.std_flag
+        ch += self.log_var
         self.arg = args
         if args['arc_cos_margin']>=0 and args['arc_cos_rad']>0:
             self.head = slidecore.arc_cos_head.ArcCosHead(in_feats=ch, args=args)
@@ -206,9 +212,15 @@ class ResNet(nn.Module):
         if self.std_flag:
             XV = X.view(X.size(0), -1)
             std_val = torch.std(XV, dim=1)
+        if self.log_var:
+            log_ten, log_var = slidecore.net.calc_drv.compute_LoG(X)
         # resize the tensor to what we have been train with
         #X = self.resize_ten(X)
         X = self.norm(X)
+        if self.log_var:
+            N,C,H,W = X.shape
+            log_ten = log_ten.reshape((N, 1, H, W))
+            X = torch.cat((X,log_ten), dim=1)
         for lay in self.layers_list:
             X = lay(X)
         N,C,H,W = X.shape
@@ -226,6 +238,8 @@ class ResNet(nn.Module):
             if len(self.max_hcfs)>0:
                 SV /= self.max_hcfs[0]
             XX = torch.cat((XX, SV), dim=1)
+        if self.log_var:
+            XX = torch.cat((XX,log_var), dim=1)
         Y = self.head(XX, target=target)
         return Y
 

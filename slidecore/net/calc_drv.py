@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import cv2 as cv
+import cv2 as cv2
 
 
 def compute_dx(x):
@@ -29,7 +29,7 @@ def compute_dy(x):
     drv = z_x
     return drv
 
-def compute_LoG(x):
+def compute_LoG(x, LoG_thr=10):
     N, C, H, W = x.shape
     if x.dtype != torch.float32:
         x = x.type(torch.float32)
@@ -37,20 +37,28 @@ def compute_LoG(x):
     z_x = torch.zeros_like(x)
 
     z_x[:,1:-1,1:-1] = -x[:,1:-1,1:-1]*4 + x[:,0:-2,1:-1] + x[:,2:,1:-1] + x[:,1:-1,2:] + x[:,1:-1,0:-2]
-    zids = z_x<=0
-    z_x[zids] = 0
-    return z_x
+    # zids = z_x<=LoG_thr
+    # z_x[zids] = 0
+
+    z_v = z_x.view((N,W*H))
+    # oids = z_v > LoG_thr
+    # var_z = torch.std(z_v[oids], dim=1)
+    var_z = torch.std(z_v, dim=1,keepdim=True)
+    var_z = var_z/(4*255)
+    return z_x, var_z
 
 
-def compute_grad(x):
+def compute_grad(x, grad_thr=10):
     dy = compute_dy(x)
     dx = compute_dx(x)
     grad = dx + dy
+    ids = grad <= grad_thr
     return grad
 
 def compute_vertical_drv(x, thr=0.2):
     drv = compute_dx(x)
     max_val, max_ids = torch.max(drv,dim=2, keepdim=True)
+    max_val = 255
     drv = drv / max_val
     drv_ids = drv>=thr
     ones = torch.ones_like(drv)
@@ -72,34 +80,48 @@ def parse_args():
     args = ap.parse_args()
     return args
 
+
+import matplotlib.pyplot as plt
 def vertical_on_image(img_path:str=None):
-    img = cv.imread(img_path)
+    img = cv2.imread(img_path)
     H,W,C = img.shape
     ten = torch.from_numpy(img)
     ten = torch.permute(ten, (2,0,1))
     ten = ten.reshape((1,C,H,W))
-    drv = compute_vertical_drv(ten)
+    thr = 0.2
+    drv = compute_vertical_drv(ten, thr=thr)
 
     max_ids = get_prominent_lines(drv)
     for id in max_ids:
+        if drv[0,id] < thr: continue
         x = id
         start_point, end_point = (x,0),(x,H)
         color = (0, 255, 0)
-        img = cv.line(img, start_point, end_point, color=color, thickness=2)
+        img = cv2.line(img, start_point, end_point, color=color, thickness=2)
     filename = f'{img_path}_line.jpeg'
-    cv.imwrite(filename, img)
+    #cv2.imwrite(filename, img)
     print(f'image:{filename}')
     grd = compute_grad(ten)
     grd = torch.permute(grd, (1,2,0))
     grad = grd.numpy()
     filename = f'{img_path}_grad.jpeg'
-    cv.imwrite(filename, grad)
+    #cv2.imwrite(filename, grad)
     print(f'image-grad:{filename}')
-    z_x = compute_LoG(ten)
+    z_x, v_z = compute_LoG(ten)
+    print(f'LoG var: {v_z}')
     z_x = torch.permute(z_x, (1, 2, 0))
-    z_x = z_x.numpy()
+    LoG = z_x.numpy()
     filename = f'{img_path}_LoG.jpeg'
-    cv.imwrite(filename, z_x)
+    #cv2.imwrite(filename, LoG)
+    plt.subplot(1, 3, 1)
+    plt.imshow(img)
+    plt.subplot(1,3,2)
+    grad = cv2.cvtColor(grad,cv2.COLOR_GRAY2BGR)
+    plt.imshow(grad)
+    plt.subplot(1,3,3)
+    LoG = cv2.cvtColor(LoG, cv2.COLOR_GRAY2BGR)
+    plt.imshow(LoG, cmap='gray')
+    plt.show()
 
 if __name__ == "__main__":
 

@@ -20,7 +20,7 @@ in_ch: 3
 out_cls: 3 # 3
 res_unit_out_relu: True
 hcf_list: [std]
-hcf_list: []
+hcf_list: [LoG]
 dropout: 0
 min_feat_map_size: 4
 weight_decay: 0.0001 #0.0001

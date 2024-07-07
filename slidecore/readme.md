@@ -16,3 +16,6 @@ python slidescore\net\ensemble.py --model_path "fullpath of a model"
 it will pick up all the models in that directory and generate an Ensemble from it.
 example:
 python slidescore\net\ensemble.py --model_path="C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
+
+slide python library:
+pip install openslide-python
