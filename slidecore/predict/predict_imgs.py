@@ -1,3 +1,5 @@
+import glob
+
 import torch
 import slidecore
 import slidecore.net.ensemble
@@ -20,6 +22,7 @@ class PredictImgs:
         self.net = self.net.to(devstr)
         self.devstr = devstr
         self.inference_size = inference_size
+        self.num_bad = 0
         self.net.eval()
         self.to_tensor = torchvision.transforms.ToTensor()
 
@@ -63,6 +66,31 @@ class PredictImgs:
             return y
         y_np = y.cpu().detach().numpy()
         return y_np
+
+    @torch.no_grad()
+    def predict_from_dir(self, dir_path:str=None,
+                         file_exten='.jpeg',
+                         batch_size=5, percentile=0.5):
+        file_names = glob.glob(dir_path,file_exten)
+        self.num_bad = 0
+        pred_list = []
+        N = len(file_names)
+        k = 0
+        while k<N:
+            img_list = []
+            while k<N and len(img_list)<batch_size:
+                img = cv2.imread(file_names[k])
+                img_list.append(img)
+            y_cur = self.predict(img_list)
+            for kk in range(len(img_list)):
+                id = np.argmax(y_cur[k,:])
+                pred_list.append(1 if id==1 else 0)
+        pred_arr = np.array(pred_list)
+        nones = np.sum(pred_arr>0)
+        bad_p = nones/len(pred_list)
+        return bad_p>=percentile
+
+
 
 # Ability to test full work
 import argparse
