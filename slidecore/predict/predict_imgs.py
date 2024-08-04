@@ -48,9 +48,12 @@ class PredictImgs:
         if type(imgs_list) is list:
             N = len(imgs_list)
             H,W,C = imgs_list[0].shape
+            dsize = (H,W)
             ten = torch.zeros((N,C,H,W), dtype=torch.float32)
             for k in range(N):
                 img = imgs_list[k].astype(np.float32)
+                if img.shape[1]!=H or img.shape[2] != W:
+                    img = cv2.resize(img,dsize=dsize, interpolation = cv2.INTER_LINEAR)
                 img = self.to_tensor(img)
                 ten[k,...] = img
         else:
