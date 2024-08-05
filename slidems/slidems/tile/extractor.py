@@ -6,6 +6,7 @@ Created on Mar 8, 2024
 
 # pip install openslide-python
 import argparse
+import pathlib
 from pathlib import Path
 import os
 import numpy
@@ -19,7 +20,7 @@ from multiprocessing import JoinableQueue, Process, Queue
 from openslide import open_slide, OpenSlide, ImageSlide
 #from PIL import Image , ImageCms
 from openslide.deepzoom import DeepZoomGenerator
-from slidems.common.logi import CreateLogger, Duration
+# from slidems.common.logi import CreateLogger, Duration
 
 
 log = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ class TileExtractorWorker(Process):
         self._tileCount = 0
         self._saveTiles = saveTiles
 
-    @Duration(log, msg=f"TileExtractorWorker", logStart=False)
+    # @Duration(log, msg=f"TileExtractorWorker", logStart=False)
     def run(self):
         log.debug(f"TileExtractorWorker {self._workerId} activated")
         if not os.path.isfile(self._ndpiSlide):
@@ -279,6 +280,10 @@ def extractor_args():
     parser.add_argument('-o','--output_path', type=str,
                         default=os.path.join(Path(__file__).parent.parent.parent, "output", "tiles"),
                         help="Output image path. [default: %(default)s]")
+    parser.add_argument('-I', '--input_dir', type=str,
+                        default=os.path.join(Path(__file__).parent.parent.parent, "input_slide",
+                                             "2024-01-15_21.26.19.ndpi"),
+                        help="Full path to inpurt dir [default: %(default)s]")
     parser.add_argument('--format', metavar='{jpeg|png}',
                         default="jpg",
                         help="Output image format. [default: %(default)s]")
@@ -308,14 +313,25 @@ def run_extractor_in_process(args=extractor_args()):
 
 if __name__ == '__main__':
     args = extractor_args()
-    CreateLogger(name=__name__, logFile=os.path.join(args.output_path, "extractor.log"))
+    # CreateLogger(name=__name__, logFile=os.path.join(args.output_path, "extractor.log"))
     workers = 4
-    extractor = TileExtractor(slide=args.input_slide,
-                              outputPath=args.output_path,
-                              img_format=args.format,
-                              workers=workers,
-                              std_filter=args.std)
+    if args.input_dir is not None:
+        files = os.listdir(args.input_dir)
+        for f in files:
+            output_path = os.path.join(args.output_path, pathlib.Path(f).stem)
+            extractor = TileExtractor(slide=os.path.join(args.input_dir, f),
+                                      outputPath=output_path,
+                                      img_format=args.format,
+                                      workers=workers,
+                                      std_filter=args.std)
+            extractor.run()
+    else:
+        extractor = TileExtractor(slide=args.input_slide,
+                                  outputPath=args.output_path,
+                                  img_format=args.format,
+                                  workers=workers,
+                                  std_filter=args.std)
 
-    extractor.run()
+        extractor.run()
     print ("\nDone")
 

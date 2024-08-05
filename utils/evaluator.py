@@ -11,7 +11,7 @@ import os
 import cv2
 import slidems
 
-from slidems.common.logi import Duration
+# from slidems.common.logi import Duration
 from slidecore.predict.predict_imgs import PredictImgs
 
 
@@ -35,7 +35,7 @@ class TilesClassifierWorker(Process):
         self._outputPath = args["outputPath"]
         self._workerSumResults = {cl:0 for cl in args["classes"]}
 
-    @Duration(log, msg="Preparing device", logStart=False)
+    # @Duration(log, msg="Preparing device", logStart=False)
     def _prepare(self):
         self.startTime = time.perf_counter()
         self._pi = PredictImgs(model_path=self._model)
@@ -61,7 +61,7 @@ class TilesClassifierWorker(Process):
         log.debug(f"END: TilesClassifierWorker {self._workerId} (Time: {totalTime:.3f} Sec)")
         self._queue.task_done()
 
-    @Duration(log, msg="doPredict", logStart=False)
+    # @Duration(log, msg="doPredict", logStart=False)
     def _doPredict(self, data):
         tilePath, tileNames, tiles, outputPath = data
         if tiles:
