@@ -44,7 +44,7 @@ class TileExtractorWorker(Process):
         self._tileCount = 0
         self._saveTiles = saveTiles
 
-    @Duration(log, msg=f"TileExtractorWorker", logStart=False)
+    #@Duration(log, msg=f"TileExtractorWorker", logStart=False)
     def run(self):
         log.debug(f"TileExtractorWorker {self._workerId} activated")
         if not os.path.isfile(self._ndpiSlide):

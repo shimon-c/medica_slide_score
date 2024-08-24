@@ -1,5 +1,6 @@
 import glob
-
+import utils.install_openslide
+utils.install_openslide.add_openslide()
 import torch
 import slidecore
 import slidecore.net.ensemble
@@ -10,6 +11,7 @@ import numpy as np
 import cv2
 import torchvision
 import os
+import utils.extractor
 
 
 class PredictImgs:
@@ -48,7 +50,7 @@ class PredictImgs:
         if type(imgs_list) is list:
             N = len(imgs_list)
             H,W,C = imgs_list[0].shape
-            dsize = (H,W)
+            dsize = (W,H)
             ten = torch.zeros((N,C,H,W), dtype=torch.float32)
             for k in range(N):
                 img = imgs_list[k].astype(np.float32)
@@ -70,24 +72,52 @@ class PredictImgs:
         y_np = y.cpu().detach().numpy()
         return y_np
 
+    @staticmethod
+    def collect_files(root_dir, file_exten='jpg'):
+        files_list = []
+        for dirpath, dirs, files in os.walk(root_dir):
+            for filename in files:
+                fname = os.path.join(dirpath, filename)
+                if fname.endswith(file_exten):
+                    files_list.append(fname)
+        return files_list
+
     @torch.no_grad()
     def predict_from_dir(self, dir_path:str=None,
                          file_exten='.jpeg',
-                         batch_size=5, percentile=0.5):
-        file_names = glob.glob(dir_path,file_exten)
+                         batch_size=5, percentile=0.5,
+                         write_tiles_flag=True):
+        #file_names = glob.glob(dir_path,file_exten)
+        file_names=PredictImgs.collect_files(dir_path, file_exten='jpg')
+        bad_dir,good_dir=None,None
+        if write_tiles_flag:
+            cur_dir = os.path.dirname(file_names[0])
+            bad_dir = os.path.join(cur_dir, 'bad_dir')
+            good_dir = os.path.join(cur_dir, 'good_path')
+            os.makedirs(bad_dir, exist_ok=True)
+            os.makedirs(good_dir, exist_ok=True)
         self.num_bad = 0
         pred_list = []
         N = len(file_names)
         k = 0
         while k<N:
             img_list = []
-            while k<N and len(img_list)<batch_size:
-                img = cv2.imread(file_names[k])
+            kk = k
+            while kk<N and len(img_list)<batch_size:
+                img = cv2.imread(file_names[kk])
                 img_list.append(img)
+                kk += 1
             y_cur = self.predict(img_list)
+            k += len(img_list)
             for kk in range(len(img_list)):
-                id = np.argmax(y_cur[k,:])
-                pred_list.append(1 if id==1 else 0)
+                id = np.argmax(y_cur[kk,:])
+                cid = 1 if id==1 else 0
+                pred_list.append(cid)
+                if write_tiles_flag:
+                    img_name = os.path.basename(file_names[kk])
+                    cur_dir = bad_dir if cid==1 else good_dir
+                    img_name = os.path.join(cur_dir, img_name)
+                    cv2.imwrite(img_name, img_list[kk])
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
@@ -96,13 +126,7 @@ class PredictImgs:
 
 
 # Ability to test full work
-import argparse
-def parse_args():
-    ap = argparse.ArgumentParser('Ensemble')
-    ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
-    ap.add_argument('--inference_size', type=int, default=0, help="perform ineference")
-    args = ap.parse_args()
-    return args
+
 
 import slidecore.net.train1
 def full_test():
@@ -128,6 +152,35 @@ def full_test():
     acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True, device=device)
     print(f'acc={acc}\n conf_mat:\n{conf_mat}')
 
+def collect_slides(root_dir, file_exten='ndpi'):
+    files_list = []
+    for dirpath, dirs, files in os.walk(root_dir):
+        for filename in files:
+            fname = os.path.join(dirpath, filename)
+            if fname.endswith(file_exten):
+                files_list.append(fname)
+    return files_list
+
+def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
+    search_pat = os.path.join(root_dir, f'**{file_exten}')
+    #file_names = glob.glob(search_pat, recursive=True)
+    file_names = collect_slides(root_dir=root_dir, file_exten=file_exten)
+    for fn in file_names:
+        dir = os.path.dirname(fn)
+        outputPath = os.path.join(dir, 'tiles')
+        extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=False)
+        extractor.run()
+        pred.predict_from_dir(outputPath)
+
+import argparse
+def parse_args():
+    ap = argparse.ArgumentParser('Ensemble')
+    ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
+    ap.add_argument('--inference_size', type=int, default=0, help="perform ineference")
+    ap.add_argument('--slides_dir', type=str, default="", help="directory of slides")
+    args = ap.parse_args()
+    return args
+
 if __name__ == '__main__':
     im1=r"C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set\GoodFocus\GoodFocus_ANONJSBHSI1F2_1_1_level_17_size_840\4_19.jpeg"
     # im2 doesnt look like a bad focus....
@@ -138,6 +191,9 @@ if __name__ == '__main__':
     model_path = r"C:\Users\shimon.cohen\PycharmProjects\medica\medica\model\resnet_epoch_14_acc_93.pt"
     model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
     pi = PredictImgs(model_path=model_path)
+    args = parse_args()
+    if args.slides_dir != '':
+        work_on_slides(pred=pi, root_dir=args.slides_dir)
     img1 = cv2.imread(im1)
     img2 = cv2.imread(im2)
     img3 = cv2.imread(im3)
