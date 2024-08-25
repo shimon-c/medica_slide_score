@@ -89,6 +89,8 @@ class PredictImgs:
                          write_tiles_flag=True):
         #file_names = glob.glob(dir_path,file_exten)
         file_names=PredictImgs.collect_files(dir_path, file_exten='jpg')
+        if len(file_names) <=0:
+            return False
         bad_dir,good_dir=None,None
         if write_tiles_flag:
             cur_dir = os.path.dirname(file_names[0])
@@ -108,16 +110,17 @@ class PredictImgs:
                 img_list.append(img)
                 kk += 1
             y_cur = self.predict(img_list)
-            k += len(img_list)
+
             for kk in range(len(img_list)):
                 id = np.argmax(y_cur[kk,:])
                 cid = 1 if id==1 else 0
                 pred_list.append(cid)
                 if write_tiles_flag:
-                    img_name = os.path.basename(file_names[kk])
+                    img_name = os.path.basename(file_names[k+kk])
                     cur_dir = bad_dir if cid==1 else good_dir
                     img_name = os.path.join(cur_dir, img_name)
                     cv2.imwrite(img_name, img_list[kk])
+            k += len(img_list)
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
