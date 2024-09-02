@@ -173,6 +173,7 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
         outputPath = os.path.join(dir, 'tiles')
         extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
         extractor.run()
+        outputPath = extractor.tiles_dir
         pred.predict_from_dir(outputPath)
         del extractor
 
