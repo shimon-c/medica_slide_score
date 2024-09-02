@@ -171,9 +171,10 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
     for fn in file_names:
         dir = os.path.dirname(fn)
         outputPath = os.path.join(dir, 'tiles')
-        extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=False)
+        extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
         extractor.run()
         pred.predict_from_dir(outputPath)
+        del extractor
 
 import argparse
 def parse_args():
