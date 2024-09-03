@@ -84,6 +84,7 @@ class PredictImgs:
 
     @torch.no_grad()
     def predict_from_dir(self, dir_path:str=None,
+                         out_dir=None,
                          file_exten='.jpeg',
                          batch_size=5, percentile=0.5,
                          write_tiles_flag=True):
@@ -93,7 +94,7 @@ class PredictImgs:
             return False
         bad_dir,good_dir=None,None
         if write_tiles_flag:
-            cur_dir = os.path.dirname(file_names[0])
+            cur_dir = os.path.dirname(file_names[0]) if out_dir is None else out_dir
             bad_dir = os.path.join(cur_dir, 'bad_dir')
             good_dir = os.path.join(cur_dir, 'good_path')
             os.makedirs(bad_dir, exist_ok=True)
@@ -168,6 +169,7 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
     search_pat = os.path.join(root_dir, f'**{file_exten}')
     #file_names = glob.glob(search_pat, recursive=True)
     file_names = collect_slides(root_dir=root_dir, file_exten=file_exten)
+    work_list=[]
     for fn in file_names:
         dir = os.path.dirname(fn)
         outputPath = os.path.join(dir, 'tiles')
@@ -175,12 +177,14 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
         extractor.run()
         outputPath = extractor.tiles_dir
         pred.predict_from_dir(outputPath)
-        del extractor
+        work_list.append(outputPath)
+        #del extractor
+    print(f'work_list:\n{work_list}')
 
 import argparse
 def parse_args():
     ap = argparse.ArgumentParser('Ensemble')
-    ap.add_argument('--model_path', type=str, required=True, help="Mode path where to generate ensmeble")
+    ap.add_argument('--model_path', type=str, required=True, help="Model path where to generate ensmeble")
     ap.add_argument('--inference_size', type=int, default=0, help="perform ineference")
     ap.add_argument('--slides_dir', type=str, default="", help="directory of slides")
     args = ap.parse_args()

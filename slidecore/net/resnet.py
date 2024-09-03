@@ -7,6 +7,7 @@ import slidecore
 import slidecore.net.create_head_utils
 import random
 import slidecore.net.calc_drv
+import slidecore.net.arc_cos_head
 
 relu = F.relu
 relu6 = F.relu6
@@ -174,7 +175,7 @@ class ResNet(nn.Module):
         ch += self.log_var
         self.arg = args
         if args['arc_cos_margin']>=0 and args['arc_cos_rad']>0:
-            self.head = slidecore.arc_cos_head.ArcCosHead(in_feats=ch, args=args)
+            self.head = slidecore.net.arc_cos_head.ArcCosHead(in_feats=ch, args=args)
         else:
             self.head = SimpleHead(in_feature=ch, args=args)
 
