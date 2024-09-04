@@ -97,7 +97,7 @@ class PredictImgs:
         bad_dir,good_dir=None,None
         if write_tiles_flag:
             cur_dir = os.path.dirname(file_names[0]) if out_dir is None else out_dir
-            shutil.rmtree(cur_dir)
+            shutil.rmtree(cur_dir,ignore_errors=True)
             bad_dir = os.path.join(cur_dir, 'bad_dir')
             good_dir = os.path.join(cur_dir, 'good_path')
             os.makedirs(bad_dir, exist_ok=True)

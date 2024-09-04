@@ -37,7 +37,7 @@ class SlideMgr:
             out_dir = fn.replace(root_dir, self.output_dir)
             is_bad = pred.predict_from_dir(dir_path=outputPath, out_dir=out_dir)
             num_bad += 1 if is_bad else 0
-            work_list.append(out_dir)
+            work_list.append((out_dir, f'is_bad:{is_bad}'))
             # del extractor
         print(f'work_list:\n{work_list}')
 
