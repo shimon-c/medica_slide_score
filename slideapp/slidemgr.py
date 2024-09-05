@@ -40,6 +40,8 @@ class SlideMgr:
             work_list.append((out_dir, f'is_bad:{is_bad}'))
             # del extractor
         print(f'work_list:\n{work_list}')
+        for tp in work_list:
+            print(f'{tp}\n')
 
 
 import argparse

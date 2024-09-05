@@ -142,7 +142,7 @@ class TileExtractor(object):
         self.save_tiles = saveTiles
         assert os.path.isfile(self.ndpi_slide), f"NDPI file was not found at {self.ndpi_slide}"
         self.source_slide_name, self._tilesDir = self.GetTilesDir(self.ndpi_slide, self.outputPath)
-        shutil.rmtree(self._tilesDir)
+        shutil.rmtree(self._tilesDir, ignore_errors=True)
         if not os.path.exists(self._tilesDir):
             os.makedirs(self._tilesDir,exist_ok=True)
             # if self.save_tiles:
