@@ -17,7 +17,9 @@ import utils.extractor
 
 
 class PredictImgs:
-    def __init__(self, model_path=None, gpu=0, ensemble_flag=False, inference_size=0):
+    def __init__(self, model_path=None, gpu=0,
+                 ensemble_flag=False, inference_size=0,
+                 cls_tile_thr=-1):
         if ensemble_flag:
             self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
@@ -27,6 +29,7 @@ class PredictImgs:
         self.devstr = devstr
         self.inference_size = inference_size
         self.num_bad = 0
+        self.cls_tile_thr = cls_tile_thr
         self.net.eval()
         self.to_tensor = torchvision.transforms.ToTensor()
 
@@ -117,7 +120,10 @@ class PredictImgs:
 
             for kk in range(len(img_list)):
                 id = np.argmax(y_cur[kk,:])
-                cid = 1 if id==1 else 0
+                if self.cls_tile_thr <0:
+                    cid = 1 if id==1 else 0
+                else:
+                    cid=1 if y_cur[kk,1] >= self.cls_tile_thr else 0
                 pred_list.append(cid)
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])
