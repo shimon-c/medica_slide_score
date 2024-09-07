@@ -120,10 +120,10 @@ class PredictImgs:
 
             for kk in range(len(img_list)):
                 id = np.argmax(y_cur[kk,:])
-                if self.cls_tile_thr <0:
-                    cid = 1 if id==1 else 0
-                else:
-                    cid=1 if y_cur[kk,1] >= self.cls_tile_thr else 0
+                cid = 1 if id == 1 else 0
+                if self.cls_tile_thr > 0 and cid!= 1:
+                    cid = 1 if y_cur[kk, 1] >= self.cls_tile_thr else 0
+
                 pred_list.append(cid)
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])

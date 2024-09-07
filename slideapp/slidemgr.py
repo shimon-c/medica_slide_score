@@ -3,7 +3,7 @@ from slidecore.predict.predict_imgs import PredictImgs as PredictImgs
 import os
 import utils
 import slideapp.config
-
+import shutil
 
 class SlideMgr:
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
@@ -16,8 +16,9 @@ class SlideMgr:
     def run(self):
         pass
 
-    def collect_dirs(self):
+    def collect_dirs(self, input_dir = None):
         dir_list = []
+        input_dir = input_dir if input_dir is not None else self.input_dir
         for dirpath, dirs, files in os.walk(self.input_dir):
             for dir in dirs:
                 dir_list.append(dir)
@@ -44,6 +45,7 @@ class SlideMgr:
                                            out_dir=out_dir,
                                            percentile = slideapp.config.classifer_slide_thr,
                                            write_tiles_flag=self.write_tiles_into_out_dir)
+            shutil.rmtree(outputPath, ignore_errors=True)
             if is_bad:
                 num_bad += 1
             else:
@@ -53,12 +55,17 @@ class SlideMgr:
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
+        num_files = len(file_names)
+        ret_str = ''
         if good_flag:
-            FB = num_bad / len(file_names)
-            print(f'False bad:{FB}')
+            FB = num_bad / num_files
+            ret_str = f'Good scan False bad:{FB}, scanned:{num_files}'
+            print(ret_str)
         else:
-            TB = num_bad / len(file_names)
-            print(f'True Bad:{TB}')
+            TB = num_bad / num_files
+            ret_str = f'Bad Scan True Bad:{TB}, scanned:{num_files}'
+            print(ret_str)
+        return ret_str
 
 
 import argparse
@@ -73,9 +80,12 @@ def parse_args():
 
 if __name__ == "__main__":
     #args = parse_args()
-    sm_app = SlideMgr(input_dir=slideapp.config.slides_dir,
+    sm_app = SlideMgr(input_dir=slideapp.config.bad_dir,
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
-    sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
+    res_str = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
+
     if os.path.exists(slideapp.config.good_dir):
-        sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
+        rstr = sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
+        res_str = f'{res_str}\n{rstr}'
+    print(res_str)
