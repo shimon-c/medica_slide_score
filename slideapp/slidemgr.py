@@ -5,6 +5,9 @@ import utils
 import slideapp.config
 import shutil
 
+import logging
+
+
 class SlideMgr:
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
         self.predictor = slidecore.predict.predict_imgs.PredictImgs(model_path=classfier_path,
@@ -12,6 +15,12 @@ class SlideMgr:
         self.input_dir = input_dir
         self.output_dir = output_dir if output_dir is not None else input_dir
         self.write_tiles_into_out_dir = slideapp.config.write_tiles_into_out_dir
+        os.makedirs(self.output_dir, exist_ok=True)
+        log_file = os.path.join(self.output_dir, "slidemgr.log")
+        logging.basicConfig(
+            filename=log_file,
+            level=logging.DEBUG)
+        print(f'log_file: {log_file}')
 
     def run(self):
         pass
@@ -34,28 +43,40 @@ class SlideMgr:
         work_list = []
         num_bad = 0
         num_good = 0
+        num_failed = 0
         for fn in file_names:
             dir = os.path.dirname(fn)
             outputPath = os.path.join(dir, 'tiles')
-            extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
-            extractor.run()
-            outputPath = extractor.tiles_dir
-            out_dir = fn.replace(root_dir, self.output_dir)
-            is_bad = pred.predict_from_dir(dir_path=outputPath,
-                                           out_dir=out_dir,
-                                           percentile = slideapp.config.classifer_slide_thr,
-                                           write_tiles_flag=self.write_tiles_into_out_dir)
+            logging.info(f'----> Working on slide (tile extractor):{fn}')
+            failed = False
+            try:
+                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
+                extractor.run()
+                outputPath = extractor.tiles_dir
+                out_dir = fn.replace(root_dir, self.output_dir)
+                is_bad = pred.predict_from_dir(dir_path=outputPath,
+                                               out_dir=out_dir,
+                                               percentile = slideapp.config.classifer_slide_thr,
+                                               write_tiles_flag=self.write_tiles_into_out_dir)
+
+
+            except Exception as e:
+                logging.error(f'******* Failed on slide:{fn}')
+                num_failed += 1
+                failed = True
+
             shutil.rmtree(outputPath, ignore_errors=True)
             if is_bad:
                 num_bad += 1
             else:
                 num_good += 1
             work_list.append((out_dir, f'is_bad:{is_bad}'))
+            logging.info(f'----->   Slide (after classifier):{fn}, is_bad: {is_bad}')
             # del extractor
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
-        num_files = len(file_names)
+        num_files = len(file_names) - num_failed
         ret_str = ''
         if good_flag:
             FB = num_bad / num_files
@@ -83,9 +104,11 @@ if __name__ == "__main__":
     sm_app = SlideMgr(input_dir=slideapp.config.bad_dir,
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
+    res_str = ''
     res_str = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
 
     if os.path.exists(slideapp.config.good_dir):
         rstr = sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
         res_str = f'{res_str}\n{rstr}'
     print(res_str)
+    logging.info(res_str)

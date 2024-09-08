@@ -8,3 +8,4 @@ classifer_slide_thr=0.3
 write_tiles_into_out_dir = True
 bad_dir = r"E:\medica_data\ReScan_bad"
 good_dir=r"E:\medica_data\ReScan_God"
+out_dir=r"E:\medica_data\results"
