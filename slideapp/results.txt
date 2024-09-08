@@ -1,0 +1,3 @@
+Good scan False bad:0.2857142857142857, scanned:7
+classifer_tile_thr:0.3  classifclassifer_tile_threr_slide_thr:0.4
+Bad Scan True Bad:0.765625, scanned:64

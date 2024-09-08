@@ -111,11 +111,11 @@ if __name__ == "__main__":
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
-    #rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
-    #res_str = f'{res_str}\n{rstr}'
+    rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
+    res_str = f'{res_str}\n{rstr}'
     if os.path.exists(slideapp.config.good_dir):
         rstr = sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
-        #res_str = f'{res_str}\n{rstr}'
+        res_str = f'{res_str}\n{rstr}'
 
     print(res_str)
     logging.info(res_str)
