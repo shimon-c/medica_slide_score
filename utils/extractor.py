@@ -1,7 +1,8 @@
 '''
-Created on Mar 8, 2024
 
-@author: Dudi Levi
+https://openslide.org/api/python/#installing
+pip install openslide-python
+
 '''
 
 # pip install openslide-python
