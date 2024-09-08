@@ -17,6 +17,10 @@ class SlideMgr:
         self.write_tiles_into_out_dir = slideapp.config.write_tiles_into_out_dir
         os.makedirs(self.output_dir, exist_ok=True)
         log_file = os.path.join(self.output_dir, "slidemgr.log")
+        try:
+            os.remove(log_file)
+        except Exception as e:
+            print(f'Failed to remove log msg: {e}')
         logging.basicConfig(
             filename=log_file,
             level=logging.DEBUG)
@@ -63,7 +67,9 @@ class SlideMgr:
             except Exception as e:
                 logging.error(f'******* Failed on slide:{fn}')
                 num_failed += 1
-                failed = True
+                shutil.rmtree(outputPath, ignore_errors=True)
+                continue
+
 
             shutil.rmtree(outputPath, ignore_errors=True)
             if is_bad:
@@ -109,7 +115,7 @@ if __name__ == "__main__":
     #res_str = f'{res_str}\n{rstr}'
     if os.path.exists(slideapp.config.good_dir):
         rstr = sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
-        res_str = f'{res_str}\n{rstr}'
+        #res_str = f'{res_str}\n{rstr}'
 
     print(res_str)
     logging.info(res_str)
