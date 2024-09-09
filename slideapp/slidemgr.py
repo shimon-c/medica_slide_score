@@ -27,7 +27,7 @@ class SlideMgr:
         print(f'log_file: {log_file}')
 
     def run(self):
-        pass
+        self.work_on_slides(root_dir=self.input_dir, good_flag=None)
 
     def collect_dirs(self, input_dir = None):
         dir_list = []
@@ -41,13 +41,19 @@ class SlideMgr:
     # Work on several slides
     def work_on_slides(self, root_dir: str = None, file_exten='ndpi',good_flag=False):
         pred = self.predictor
-        search_pat = os.path.join(root_dir, f'**{file_exten}')
+
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         work_list = []
         num_bad = 0
         num_good = 0
         num_failed = 0
+        good_dir, bad_dir = None, None
+        if good_flag is None:
+            good_dir = os.path.join(self.output_dir, 'good_dir')
+            bad_dir = os.path.join(self.output_dir, 'bad_dir')
+            os.makedirs(good_dir, exist_ok=True)
+            os.makedirs(bad_dir, exist_ok=True)
         for fn in file_names:
             dir = os.path.dirname(fn)
             outputPath = os.path.join(dir, 'tiles')
@@ -78,20 +84,28 @@ class SlideMgr:
                 num_good += 1
             work_list.append((out_dir, f'is_bad:{is_bad}'))
             logging.info(f'----->   Slide (after classifier):{fn}, is_bad: {is_bad}')
+            if good_flag is None:
+                # Copy the slide for further process
+                if is_bad:
+                    new_fn = fn.replace(self.input_dir, bad_dir)
+                else:
+                    new_fn = fn.replace(self.input_dir, good_dir)
+                shutil.copy(fn, new_fn)
             # del extractor
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
         num_files = len(file_names) - num_failed
         ret_str = ''
-        if good_flag:
-            FB = num_bad / num_files
-            ret_str = f'Good scan False bad:{FB}, scanned:{num_files}'
-            print(ret_str)
-        else:
-            TB = num_bad / num_files
-            ret_str = f'Bad Scan True Bad:{TB}, scanned:{num_files}'
-            print(ret_str)
+        if good_flag is not None:
+            if good_flag:
+                FB = num_bad / num_files
+                ret_str = f'Good scan False bad:{FB}, scanned:{num_files}'
+                print(ret_str)
+            else:
+                TB = num_bad / num_files
+                ret_str = f'Bad Scan True Bad:{TB}, scanned:{num_files}'
+                print(ret_str)
         return ret_str
 
 
