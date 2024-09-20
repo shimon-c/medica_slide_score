@@ -1,4 +1,5 @@
 model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
+model_path=r"E:\medica_classifier\resnet_epoch_17_0.924198.pt"
 inference_size=0
 bad_dir=r"D:\medica_data\ReScan_bad"
 good_dir=r""
@@ -8,4 +9,6 @@ classifer_slide_thr=0.3                #  0.3
 write_tiles_into_out_dir = True
 bad_dir = r"E:\medica_data\ReScan_bad"
 good_dir=r"E:\medica_data\ReScan_God"
+# The root point at which results will be written to
 out_dir=r"E:\medica_data\results"
+tiles_working_dir=r"E:\medica_data\tiles_dir"

@@ -15,6 +15,9 @@ class SlideMgr:
         self.input_dir = input_dir
         self.output_dir = output_dir if output_dir is not None else input_dir
         self.write_tiles_into_out_dir = slideapp.config.write_tiles_into_out_dir
+        self.tiles_working_dir = slideapp.config.tiles_working_dir
+        if self.tiles_working_dir != '':
+            os.makedirs(self.tiles_working_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
         log_file = os.path.join(self.output_dir, "slidemgr.log")
         try:
@@ -55,7 +58,8 @@ class SlideMgr:
             os.makedirs(good_dir, exist_ok=True)
             os.makedirs(bad_dir, exist_ok=True)
         for fn in file_names:
-            dir = os.path.dirname(fn)
+            # if a directory was supplied
+            dir = self.tiles_working_dir if self.tiles_working_dir != '' else os.path.dirname(fn)
             outputPath = os.path.join(dir, 'tiles')
             logging.info(f'----> Working on slide (tile extractor):{fn}')
             failed = False
@@ -90,6 +94,7 @@ class SlideMgr:
                     new_fn = fn.replace(self.input_dir, bad_dir)
                 else:
                     new_fn = fn.replace(self.input_dir, good_dir)
+                os.makedirs(os.path.dirname(new_fn), exist_ok=True)
                 shutil.copy(fn, new_fn)
             # del extractor
         print(f'work_list:\n{work_list}')
@@ -116,6 +121,7 @@ def parse_args():
     ap.add_argument('--inference_size', type=int, default=0, help="perform ineference")
     ap.add_argument('--slides_dir', type=str, default="", help="directory of slides")
     ap.add_argument('--out_dir', type=str, default="", help="directory of slides")
+    ap.add_argument('--run_flag', type=int, default=0, help="Run ")
     args = ap.parse_args()
     return args
 
@@ -124,6 +130,9 @@ if __name__ == "__main__":
     sm_app = SlideMgr(input_dir=slideapp.config.bad_dir,
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
+    args = parse_args()
+    if args.run_flag:
+        sm_app.run()
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
     res_str = f'{res_str}\n{rstr}'
