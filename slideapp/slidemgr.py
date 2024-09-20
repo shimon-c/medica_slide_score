@@ -4,9 +4,9 @@ import os
 import utils
 import slideapp.config
 import shutil
-
+import time
 import logging
-
+from datetime import date
 
 class SlideMgr:
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
@@ -30,7 +30,15 @@ class SlideMgr:
         print(f'log_file: {log_file}')
 
     def run(self):
-        self.work_on_slides(root_dir=self.input_dir, good_flag=None)
+        prv_date = None
+        while True:
+            cur_date = date.today()
+            if prv_date is None or cur_date > prv_date:
+                self.work_on_slides(root_dir=self.input_dir,
+                                    good_flag=None)
+            # Sleep for an hour
+            prv_date = cur_date
+            time.sleep(60*60)
 
     def collect_dirs(self, input_dir = None):
         dir_list = []
