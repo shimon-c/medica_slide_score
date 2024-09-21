@@ -138,8 +138,8 @@ if __name__ == "__main__":
     sm_app = SlideMgr(input_dir=slideapp.config.bad_dir,
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
-    args = parse_args()
-    if args.run_flag:
+    # Check if run mode (not test)
+    if slideapp.config.run_flag:
         sm_app.run()
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)

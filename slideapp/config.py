@@ -12,3 +12,4 @@ good_dir=r"E:\medica_data\ReScan_God"
 # The root point at which results will be written to
 out_dir=r"E:\medica_data\results"
 tiles_working_dir=r"E:\medica_data\tiles_dir"
+run_flag = True     # Run mode
