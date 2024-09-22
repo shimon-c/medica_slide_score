@@ -33,6 +33,7 @@ class SlideMgr:
         prv_date = None
         while True:
             cur_date = date.today()
+            print(f'slidemgr date:{cur_date}')
             if prv_date is None or cur_date > prv_date:
                 self.work_on_slides(root_dir=self.input_dir,
                                     good_flag=None)
