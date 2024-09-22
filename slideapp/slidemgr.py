@@ -8,6 +8,8 @@ import time
 import logging
 from datetime import date
 
+# Currently need to perform on windows:  pip install albumentations==1.1.0
+
 class SlideMgr:
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
         self.predictor = slidecore.predict.predict_imgs.PredictImgs(model_path=classfier_path,
