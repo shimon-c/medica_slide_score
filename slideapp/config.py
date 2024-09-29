@@ -13,3 +13,9 @@ good_dir=r"E:\medica_data\ReScan_God"
 out_dir=r"E:\medica_data\results"
 tiles_working_dir=r"E:\medica_data\tiles_dir"
 run_flag = True     # Run mode
+
+# work at lab
+model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
+out_dir="/mnt/medica/medica_data/test_folder_out"
+input_dir="/mnt/medica/medica_data/ReScan_bad"
+input_dir="/home/shimon/hama2"

@@ -8,6 +8,9 @@ import time
 import logging
 from datetime import date
 
+#source ~/venv/bin/activate
+
+
 # Currently need to perform on windows:  pip install albumentations==1.1.0
 
 class SlideMgr:
@@ -138,7 +141,7 @@ def parse_args():
 
 if __name__ == "__main__":
     #args = parse_args()
-    sm_app = SlideMgr(input_dir=slideapp.config.bad_dir,
+    sm_app = SlideMgr(input_dir=slideapp.config.input_dir,
                       classfier_path=slideapp.config.model_path,
                       output_dir=slideapp.config.out_dir)
     # Check if run mode (not test)

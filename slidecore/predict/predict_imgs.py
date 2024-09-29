@@ -2,7 +2,7 @@ import glob
 import shutil
 
 import utils.install_openslide
-utils.install_openslide.add_openslide()
+#utils.install_openslide.add_openslide()
 import torch
 import slidecore
 import slidecore.net.ensemble
