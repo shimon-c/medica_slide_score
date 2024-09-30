@@ -25,6 +25,12 @@ class SlideMgr:
             os.makedirs(self.tiles_working_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
         log_file = os.path.join(self.output_dir, "slidemgr.log")
+        res_file = os.path.join(self.output_dir, "slidemgr_results.txt")
+        try:
+            os.remove(res_file)
+        except Exception as e:
+            print(f'Caught: {e}')
+        self.res_file = open(res_file, "+w")
         try:
             os.remove(log_file)
         except Exception as e:
@@ -102,6 +108,9 @@ class SlideMgr:
                 num_good += 1
             work_list.append((out_dir, f'is_bad:{is_bad}'))
             logging.info(f'----->   Slide (after classifier):{fn}, is_bad: {is_bad}')
+            sl_res_str = 'Bad' if is_bad else 'Good'
+            self.res_file.write(f'{fn}:\t {sl_res_str}\n')
+            self.res_file.flush()
             if good_flag is None:
                 # Copy the slide for further process
                 if is_bad:
