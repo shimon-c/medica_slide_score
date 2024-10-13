@@ -98,6 +98,8 @@ class SlideMgr:
             except Exception as e:
                 logging.error(f'******* Failed on slide:{fn}')
                 print(f'******* Failed on slide:{fn}')
+                self.res_file(f'******* Failed on slide:{fn}')
+                self.res_file.flush()
                 num_failed += 1
                 shutil.rmtree(outputPath, ignore_errors=True)
                 continue
