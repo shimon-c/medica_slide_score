@@ -9,7 +9,7 @@ import logging
 from datetime import date
 
 #source ~/venv/bin/activate
-
+# source /home/shimon/venv/bin/activate
 
 # Currently need to perform on windows:  pip install albumentations==1.1.0
 
