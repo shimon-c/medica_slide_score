@@ -82,6 +82,7 @@ class SlideMgr:
             dir = self.tiles_working_dir if self.tiles_working_dir != '' else os.path.dirname(fn)
             outputPath = os.path.join(dir, 'tiles')
             logging.info(f'----> Working on slide (tile extractor):{fn}')
+            print(f'----> Working on slide (tile extractor):{fn}')
             failed = False
             try:
                 extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
@@ -96,6 +97,7 @@ class SlideMgr:
 
             except Exception as e:
                 logging.error(f'******* Failed on slide:{fn}')
+                print(f'******* Failed on slide:{fn}')
                 num_failed += 1
                 shutil.rmtree(outputPath, ignore_errors=True)
                 continue
