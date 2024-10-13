@@ -15,6 +15,7 @@ import cv2
 import torchvision
 import os
 import utils.extractor
+import logging
 
 
 class PredictImgs:
@@ -25,7 +26,9 @@ class PredictImgs:
             self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
             self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
-        devstr = devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
+        devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
+        logging.info(f'----> Working GPU:{devstr}')
+        print(f'device{devstr}')
         self.net = self.net.to(devstr)
         self.devstr = devstr
         self.inference_size = inference_size

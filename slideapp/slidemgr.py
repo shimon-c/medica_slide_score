@@ -50,7 +50,7 @@ class SlideMgr:
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
-            time.sleep(60*60)
+            time.sleep(60)
 
     def collect_dirs(self, input_dir = None):
         dir_list = []
