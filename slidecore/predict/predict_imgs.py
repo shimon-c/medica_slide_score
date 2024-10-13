@@ -28,7 +28,7 @@ class PredictImgs:
             self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
         devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
         logging.info(f'----> Working GPU:{devstr}')
-        print(f'device{devstr}')
+        print(f'device: ->\t{devstr}')
         self.net = self.net.to(devstr)
         self.devstr = devstr
         self.inference_size = inference_size
