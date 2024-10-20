@@ -162,6 +162,8 @@ class TileExtractor(object):
         self.dz = DeepZoomGenerator(self._slide, self.tile_size, overlap=1)
         log.debug (self.dz)
         n_levels = len(self.dz.level_tiles)
+        self.totalTiles = 0
+        self.cols, self.rows = 0,0
         if n_levels <= self.level:
             logging.error(f'Bad slide: {self.ndpi_slide}')
             return

@@ -74,13 +74,13 @@ class SlideMgr:
         num_good = 0
         num_failed = 0
         good_dir, bad_dir = None, None
-        print(f'work_on_slides: collected {len(file_names)} slides')
+        print(f'---> work_on_slides: collected {len(file_names)} slides  <---')
         if good_flag is None:
             good_dir = os.path.join(self.output_dir, 'good_dir')
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
             os.makedirs(bad_dir, exist_ok=True)
-        for fn in file_names:
+        for kfn,fn in enumerate(file_names):
             # if a directory was supplied
             dir = self.tiles_working_dir if self.tiles_working_dir != '' else os.path.dirname(fn)
             outputPath = os.path.join(dir, 'tiles')
@@ -99,9 +99,10 @@ class SlideMgr:
 
 
             except Exception as e:
+                fn = file_names[kfn]
                 logging.error(f'******* Failed on slide:{fn}')
                 print(f'******* Failed on slide:{fn}')
-                self.res_file(f'******* Failed on slide:{fn}')
+                self.res_file.write(f'******* Failed on slide:{fn}')
                 self.res_file.flush()
                 num_failed += 1
                 shutil.rmtree(outputPath, ignore_errors=True)
