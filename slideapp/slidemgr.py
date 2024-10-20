@@ -40,9 +40,10 @@ class SlideMgr:
             level=logging.DEBUG)
         print(f'log_file: {log_file}')
 
-    def run(self):
+    def run(self, max_iters=1):
         prv_date = None
-        while True:
+        iter = 0
+        while True and iter < max_iters:
             cur_date = date.today()
             print(f'slidemgr date:{cur_date}')
             if prv_date is None or cur_date > prv_date:
@@ -51,6 +52,7 @@ class SlideMgr:
             # Sleep for an hour
             prv_date = cur_date
             time.sleep(60)
+            iter += 1
 
     def collect_dirs(self, input_dir = None):
         dir_list = []
@@ -72,6 +74,7 @@ class SlideMgr:
         num_good = 0
         num_failed = 0
         good_dir, bad_dir = None, None
+        print(f'work_on_slides: collected {len(file_names)} slides')
         if good_flag is None:
             good_dir = os.path.join(self.output_dir, 'good_dir')
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
@@ -113,7 +116,7 @@ class SlideMgr:
             work_list.append((out_dir, f'is_bad:{is_bad}'))
             logging.info(f'----->   Slide (after classifier):{fn}, is_bad: {is_bad}')
             sl_res_str = 'Bad' if is_bad else 'Good'
-            self.res_file.write(f'{fn}:\t {sl_res_str}\n')
+            self.res_file.write(f'{fn},\t {sl_res_str}\n')
             self.res_file.flush()
             if good_flag is None:
                 # Copy the slide for further process
