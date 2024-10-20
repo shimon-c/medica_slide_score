@@ -173,6 +173,8 @@ def collect_slides(root_dir, file_exten='ndpi'):
     files_list = []
     for dirpath, dirs, files in os.walk(root_dir):
         for filename in files:
+            if len(filename) < 26:
+                continue
             fname = os.path.join(dirpath, filename)
             if fname.endswith(file_exten):
                 files_list.append(fname)
