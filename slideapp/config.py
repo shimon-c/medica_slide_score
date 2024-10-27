@@ -21,3 +21,6 @@ out_dir="/mnt/medica/medica_data/test_folder_out"
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 input_dir="/home/shimon/hama-test"
 input_dir="/home/shimon/hama2/"
+#For test
+input_dir="/mnt/medica/medica_data/test_folder_out"
+out_dir="/mnt/medica/medica_data/for_test_folder_out"

@@ -117,14 +117,19 @@ class SlideMgr:
             work_list.append((out_dir, f'is_bad:{is_bad}'))
             logging.info(f'----->   Slide (after classifier):{fn}, is_bad: {is_bad}')
             sl_res_str = 'Bad' if is_bad else 'Good'
-            self.res_file.write(f'{fn},\t {sl_res_str}\n')
+            basename = os.path.basename(fn)
+            # Use to be the full path
+            self.res_file.write(f'{basename},\t {sl_res_str}\n')
             self.res_file.flush()
             if good_flag is None:
                 # Copy the slide for further process
+                basename = os.path.basename(fn)
                 if is_bad:
-                    new_fn = fn.replace(self.input_dir, bad_dir)
+                    #new_fn = fn.replace(self.input_dir, bad_dir)
+                    new_fn = os.path.join(bad_dir, basename)
                 else:
-                    new_fn = fn.replace(self.input_dir, good_dir)
+                    new_fn = os.path.join(good_dir, basename)
+                    #new_fn = fn.replace(self.input_dir, good_dir)
                 os.makedirs(os.path.dirname(new_fn), exist_ok=True)
                 shutil.copy(fn, new_fn)
             # del extractor
