@@ -62,6 +62,13 @@ class SlideMgr:
                 dir_list.append(dir)
 
         return dir_list
+    def filter_files(self, files=[], filter_str = '01'):
+        ret_files = []
+        for fn in files:
+            bfn = os.path.basename(fn)
+            if filter_str in bfn.split('-')[2]:
+                ret_files.append(ret_files)
+        return ret_files
 
     # Work on several slides
     def work_on_slides(self, root_dir: str = None, file_exten='ndpi',good_flag=False):
@@ -69,6 +76,8 @@ class SlideMgr:
 
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
+        # Just for now filter colored slices
+        file_names = self.filter_files(files=file_names)
         work_list = []
         num_bad = 0
         num_good = 0
