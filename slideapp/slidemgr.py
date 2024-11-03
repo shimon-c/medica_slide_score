@@ -66,8 +66,10 @@ class SlideMgr:
         ret_files = []
         for fn in files:
             bfn = os.path.basename(fn)
-            if filter_str in bfn.split('-')[2]:
-                ret_files.append(ret_files)
+            filtered_list = bfn.split('-')
+            if len(filtered_list)>3:
+                if filter_str in filtered_list[3]:
+                    ret_files.append(fn)
         return ret_files
 
     # Work on several slides
