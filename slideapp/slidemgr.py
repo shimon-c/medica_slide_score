@@ -113,7 +113,7 @@ class SlideMgr:
                 fn = file_names[kfn]
                 logging.error(f'******* Failed on slide:{fn}')
                 print(f'******* Failed on slide:{fn}')
-                self.res_file.write(f'******* Failed on slide:{fn}')
+                self.res_file.write(f'******* Failed on slide:{fn}\n')
                 self.res_file.flush()
                 num_failed += 1
                 shutil.rmtree(outputPath, ignore_errors=True)
