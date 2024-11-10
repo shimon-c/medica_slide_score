@@ -73,7 +73,7 @@ class TileExtractorWorker(Process):
         imgarr = numpy.array(pilImage, dtype=float)
         std = numpy.std(imgarr)
         if std >= self._stdFilter:
-            self._results.put((f"{tilename} Ok {std} ", tilename, row,col))
+            self._results.put((f"{tilename} Ok {std} ", tilepath, row,col))
             if self._evaluateQueue:
                 self._evaluateQueue.put((self._outputPath, tilename, pilImage, self._outputPath))
             if self._saveTiles:
@@ -176,6 +176,7 @@ class TileExtractor(object):
         self._workQueue = JoinableQueue(2 * self._workers)
         self._resultQueue = Queue(self.totalTiles+2)
         self._evaluateQueue = evaluateQueue
+        self.tiles_list = []
         for i in range(self._workers):
             TileExtractorWorker(workerId=i+1,
                                 workQueue=self._workQueue,
@@ -271,6 +272,7 @@ class TileExtractor(object):
             while not self._resultQueue.empty():
                 res = self._resultQueue.get()
                 mFile.write(f"{res}\n")
+                self.tiles_list.append(res[1:])
                 tiles += 1
         if self.totalTiles != tiles:
             log.debug (f"Error expected - {self.totalTiles} but extracted - {tiles}")

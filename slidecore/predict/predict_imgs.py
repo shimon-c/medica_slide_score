@@ -97,9 +97,13 @@ class PredictImgs:
                          out_dir=None,
                          file_exten='.jpeg',
                          batch_size=5, percentile=0.5,
-                         write_tiles_flag=True):
+                         write_tiles_flag=True,tiles_list=None,
+                         tile_w=840, tile_h=840, n_tile_rows=0, n_tile_cols=0):
         #file_names = glob.glob(dir_path,file_exten)
-        file_names=PredictImgs.collect_files(dir_path, file_exten='jpg')
+        if tiles_list is None:
+            file_names=PredictImgs.collect_files(dir_path, file_exten='jpg')
+        else:
+            file_names = [res[0] for res in tiles_list]
         if len(file_names) <=0:
             return False
         bad_dir,good_dir=None,None
@@ -141,7 +145,34 @@ class PredictImgs:
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
+        if tiles_list is not None:
+            self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
+                                  tile_h=tile_h, tile_w=tile_w,
+                                  n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
         return bad_p>=percentile
+
+    def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
+        N = len(tiles_list)
+        H = int((tile_h * n_tile_rows )/slideapp.config.slide_img_down_sample + 0.5)
+        W = int((tile_w * n_tile_cols )/slideapp.config.slide_img_down_sample + 0.5)
+        slide_img = np.zeros((H,W,3), np.uint8)
+        tw,th = int(tile_w/slideapp.config.slide_img_down_sample), int(tile_h/slideapp.config.slide_img_down_sample)
+        for k in range(N):
+            fname,row,col = tiles_list[k]
+            img = cv2.imread(fname)
+            img_ds = cv2.resize(img, (tw,th))
+            cur_y,cur_x = row*th, col*tw
+            slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
+        # Next draw the rectanle
+        red = (255,0,0)
+        thickness = 2
+        for k in range(N):
+            fname,row,col = tiles_list[k]
+            cur_y,cur_x = row*th, col*tw
+            slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
+            slide_img = cv2.rectangle(slide_img, (cur_y,cur_x), (cur_y+th,cur_x+tw), red, thickness=thickness)
+        dirp = os.path.dirname(tiles_list[0][0])
+
 
 
 
@@ -172,15 +203,19 @@ def full_test():
     acc, conf_mat = slidecore.net.train1.compute_acc(net=cls, loader=test_ld, calc_conf_mat=True, device=device)
     print(f'acc={acc}\n conf_mat:\n{conf_mat}')
 
-def collect_slides(root_dir, file_exten='ndpi'):
-    files_list = []
+def collect_slides(root_dir, file_exten='ndpi',files_list_in=None):
+    files_list = [] if files_list_in is None else files_list_in
     for dirpath, dirs, files in os.walk(root_dir):
         for filename in files:
-            if len(filename) < 26:
+            # should be 26
+            if len(filename) < 6:
                 continue
             fname = os.path.join(dirpath, filename)
             if fname.endswith(file_exten):
                 files_list.append(fname)
+        for dir in dirs:
+            cur_dir = os.path.join(dirpath, dir)
+            collect_slides(root_dir=cur_dir, file_exten=file_exten, files_list_in=files_list)
     return files_list
 
 def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):

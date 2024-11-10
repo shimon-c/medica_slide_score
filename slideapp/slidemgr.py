@@ -108,7 +108,10 @@ class SlideMgr:
                 is_bad = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
                                                percentile = slideapp.config.classifer_slide_thr,
-                                               write_tiles_flag=self.write_tiles_into_out_dir)
+                                               write_tiles_flag=self.write_tiles_into_out_dir,
+                                               tiles_list=extractor.tiles_list,
+                                               tile_w=extractor.tile_size, tile_h=extractor.tile_size,
+                                               n_tile_rows=extractor.rows, n_tile_cols=extractor.cols)
 
 
             except Exception as e:
