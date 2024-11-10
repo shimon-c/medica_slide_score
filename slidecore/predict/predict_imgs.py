@@ -164,14 +164,16 @@ class PredictImgs:
             cur_y,cur_x = row*th, col*tw
             slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
         # Next draw the rectanle
-        red = (255,0,0)
+        red = (0,255,0)
         thickness = 2
         for k in range(N):
             fname,row,col = tiles_list[k]
-            cur_y,cur_x = row*th, col*tw
-            slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
-            slide_img = cv2.rectangle(slide_img, (cur_y,cur_x), (cur_y+th,cur_x+tw), red, thickness=thickness)
+            if pred_arr[k] > 0:
+                cur_y,cur_x = row*th, col*tw
+                slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
+                slide_img = cv2.rectangle(slide_img, (cur_y,cur_x), (cur_y+th,cur_x+tw), red, thickness=thickness)
         dirp = os.path.dirname(tiles_list[0][0])
+        return slide_img
 
 
 
