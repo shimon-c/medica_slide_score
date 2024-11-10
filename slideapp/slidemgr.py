@@ -99,10 +99,12 @@ class SlideMgr:
             print(f'----> Working on slide (tile extractor):{fn}')
             failed = False
             try:
-                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
+                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
+                                                          saveTiles=True, std_filter=0)
                 extractor.run()
                 outputPath = extractor.tiles_dir
-                out_dir = fn.replace(root_dir, self.output_dir)
+                base_fn = os.path.basename(fn)
+                out_dir = os.path.join(self.output_dir, base_fn)
                 is_bad = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
                                                percentile = slideapp.config.classifer_slide_thr,
@@ -147,7 +149,9 @@ class SlideMgr:
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
+        print(f'num_failed:{num_failed}, num files: {len(file_names)}')
         num_files = len(file_names) - num_failed
+        if num_files<=0: num_files=1
         ret_str = ''
         if good_flag is not None:
             if good_flag:
