@@ -79,7 +79,7 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices
-        file_names = self.filter_files(files=file_names)
+        #file_names = self.filter_files(files=file_names)
         work_list = []
         num_bad = 0
         num_good = 0
