@@ -1,6 +1,7 @@
 import glob
 import shutil
 
+import slideapp.config
 import utils.install_openslide
 # Only at home run this
 utils.install_openslide.add_openslide()
@@ -127,7 +128,9 @@ class PredictImgs:
                 cid = 1 if id == 1 else 0
                 if self.cls_tile_thr > 0 and cid!= 1:
                     cid = 1 if y_cur[kk, 1] >= self.cls_tile_thr else 0
-
+                cur_var = np.var(img_list[kk])
+                if cur_var<=slideapp.config.tile_std_thr:
+                    cid = 0
                 pred_list.append(cid)
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])

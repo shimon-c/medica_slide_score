@@ -79,7 +79,7 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices
-        file_names = self.filter_files(files=file_names)
+        #file_names = self.filter_files(files=file_names)
         work_list = []
         num_bad = 0
         num_good = 0
@@ -99,10 +99,12 @@ class SlideMgr:
             print(f'----> Working on slide (tile extractor):{fn}')
             failed = False
             try:
-                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
+                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
+                                                          saveTiles=True, std_filter=0)
                 extractor.run()
                 outputPath = extractor.tiles_dir
-                out_dir = fn.replace(root_dir, self.output_dir)
+                base_fn = os.path.basename(fn)
+                out_dir = os.path.join(self.output_dir, base_fn)
                 is_bad = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
                                                percentile = slideapp.config.classifer_slide_thr,
@@ -113,7 +115,7 @@ class SlideMgr:
                 fn = file_names[kfn]
                 logging.error(f'******* Failed on slide:{fn}')
                 print(f'******* Failed on slide:{fn}')
-                self.res_file.write(f'******* Failed on slide:{fn}')
+                self.res_file.write(f'******* Failed on slide:{fn}\n')
                 self.res_file.flush()
                 num_failed += 1
                 shutil.rmtree(outputPath, ignore_errors=True)
@@ -147,7 +149,9 @@ class SlideMgr:
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
+        print(f'num_failed:{num_failed}, num files: {len(file_names)}')
         num_files = len(file_names) - num_failed
+        if num_files<=0: num_files=1
         ret_str = ''
         if good_flag is not None:
             if good_flag:
