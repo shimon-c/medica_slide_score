@@ -73,7 +73,7 @@ class TileExtractorWorker(Process):
         imgarr = numpy.array(pilImage, dtype=float)
         std = numpy.std(imgarr)
         if std >= self._stdFilter:
-            self._results.put(f"{tilename} Ok {std} ")
+            self._results.put((f"{tilename} Ok {std} ", tilename, row,col))
             if self._evaluateQueue:
                 self._evaluateQueue.put((self._outputPath, tilename, pilImage, self._outputPath))
             if self._saveTiles:
