@@ -88,6 +88,8 @@ class SlideMgr:
         good_dir, bad_dir = None, None
         print(f'---> work_on_slides: collected {len(file_names)} slides  <---')
         if good_flag is None:
+            shutil.rmtree(self.output_dir, ignore_errors=True)
+            os.makedirs(self.output_dir, exist_ok=True)
             good_dir = os.path.join(self.output_dir, 'good_dir')
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
