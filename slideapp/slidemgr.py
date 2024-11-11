@@ -7,6 +7,7 @@ import shutil
 import time
 import logging
 from datetime import date
+import cv2
 
 #source ~/venv/bin/activate
 # source /home/shimon/venv/bin/activate
@@ -105,7 +106,7 @@ class SlideMgr:
                 outputPath = extractor.tiles_dir
                 base_fn = os.path.basename(fn)
                 out_dir = os.path.join(self.output_dir, base_fn)
-                is_bad = pred.predict_from_dir(dir_path=outputPath,
+                is_bad,slide_img = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
                                                percentile = slideapp.config.classifer_slide_thr,
                                                write_tiles_flag=self.write_tiles_into_out_dir,
@@ -148,6 +149,9 @@ class SlideMgr:
                     #new_fn = fn.replace(self.input_dir, good_dir)
                 os.makedirs(os.path.dirname(new_fn), exist_ok=True)
                 shutil.copy(fn, new_fn)
+                new_fn = f'{new_fn}.jpg'
+                if slide_img is not None:
+                    cv2.imwrite(filename=new_fn,img=slide_img)
             # del extractor
         print(f'work_list:\n{work_list}')
         for tp in work_list:

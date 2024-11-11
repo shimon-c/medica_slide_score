@@ -136,6 +136,11 @@ class PredictImgs:
                 if cur_var<=slideapp.config.tile_std_thr:
                     cid = 0
                 pred_list.append(cid)
+                if tiles_list is not None:
+                    k_id = k + kk
+                    cur_res = tiles_list[k_id]
+                    cur_res = cur_res + (cid,)
+                    tiles_list[k_id] = cur_res
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])
                     cur_dir = bad_dir if cid==1 else good_dir
@@ -145,11 +150,12 @@ class PredictImgs:
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
+        slide_img = None
         if tiles_list is not None:
-            self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
+            slide_img = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
                                   tile_h=tile_h, tile_w=tile_w,
                                   n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
-        return bad_p>=percentile
+        return bad_p>=percentile, slide_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
         N = len(tiles_list)
@@ -158,7 +164,7 @@ class PredictImgs:
         slide_img = np.zeros((H,W,3), np.uint8)
         tw,th = int(tile_w/slideapp.config.slide_img_down_sample), int(tile_h/slideapp.config.slide_img_down_sample)
         for k in range(N):
-            fname,row,col = tiles_list[k]
+            fname,row,col,cid = tiles_list[k]
             img = cv2.imread(fname)
             img_ds = cv2.resize(img, (tw,th))
             cur_y,cur_x = row*th, col*tw
@@ -167,8 +173,8 @@ class PredictImgs:
         red = (0,0,255)
         thickness = 2
         for k in range(N):
-            fname,row,col = tiles_list[k]
-            if pred_arr[k] > 0:
+            fname,row,col,cid = tiles_list[k]
+            if cid > 0:
                 cur_y,cur_x = row*th, col*tw
                 slide_img = cv2.rectangle(slide_img, (cur_x, cur_y), (cur_x+tw,cur_y+th), red, thickness=thickness)
         dirp = os.path.dirname(tiles_list[0][0])
