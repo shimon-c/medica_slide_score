@@ -134,5 +134,5 @@ bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
 #txt_obj = Button(ax_txt, '')
-
+callback.show_current_image()
 plt.show()
