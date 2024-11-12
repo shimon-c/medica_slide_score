@@ -167,6 +167,9 @@ class SlideMgr:
         num_files = len(file_names) - num_failed
         if num_files<=0: num_files=1
         ret_str = ''
+        num_bad_prob = num_bad/num_files
+        num_good_prob = num_good/num_files
+        print(f'bad%:{num_bad_prob}, good%:{num_good_prob}')
         if good_flag is not None:
             if good_flag:
                 FB = num_bad / num_files

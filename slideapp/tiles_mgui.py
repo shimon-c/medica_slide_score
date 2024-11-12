@@ -65,9 +65,10 @@ class Index:
 
     def show_current_image(self):
         self.ind = self.ind % len(self.img_list)
-        textstr = f'{self.ind}/{len(self.img_list)}'
+        work_done = 100*self.ind/len(self.img_list)
+        textstr = f'{self.ind}/{len(self.img_list)},{work_done}'
         print(textstr)
-
+        textstr = f'{self.ind}/{len(self.img_list)}'
         img_path = self.img_list[self.ind][0]
         self.cur_img_name = img_path
         # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
