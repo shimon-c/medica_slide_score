@@ -68,7 +68,8 @@ class Index:
         work_done = 100*self.ind/len(self.img_list)
         textstr = f'{self.ind}/{len(self.img_list)},{work_done}'
         print(textstr)
-        textstr = f'{self.ind}/{len(self.img_list)}'
+        cid = self.img_list[self.ind][1]
+        textstr = f'{self.ind}/{len(self.img_list)},cid:{cid}'
         img_path = self.img_list[self.ind][0]
         self.cur_img_name = img_path
         # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
@@ -90,12 +91,12 @@ class Index:
 
     def ok(self, event):
         print('ok')
-        self.img_list[self.ind][1] = 1
+        self.img_list[self.ind][1] = 0
         self.next()
 
     def bad(self, event):
         print('bad')
-        self.img_list[self.ind][1] = 0
+        self.img_list[self.ind][1] = 1
         self.next()
 
     def save(self,event):
@@ -110,11 +111,11 @@ print(f'working on directory:{args.root_dir}')
 
 ax_ok = fig.add_axes([0.1, 0.05, 0.1, 0.075])
 ax_bad = fig.add_axes([0.21, 0.05, 0.1, 0.075])
-ax_save = fig.add_axes([0.35, 0.05, 0.1, 0.075])
+ax_save = fig.add_axes([0.32, 0.05, 0.1, 0.075])
 axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
 axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
 
-ax_txt = fig.add_axes([0.5, 0.05, 0.1, 0.075])
+ax_txt = fig.add_axes([0.45, 0.05, 0.2, 0.075])
 
 #ax_txt = fig.add_axes([0.5, 0.05, 0.1, 0.075])
 callback = Index(root_dir=args.root_dir, wildcard=args.file_exten, csv_path=args.csv_file)

@@ -140,9 +140,12 @@ class ResNet(nn.Module):
         self.to_tensor = transforms.ToTensor()
         self.std_flag = 'std' in args['hcf_list']
         self.log_var = 'LoG' in args['hcf_list']
+        self.grad_val = 'Grad' in args['hcf_list']
+        self.mean_val = 'mean' in args['hcf_list']
         if self.log_var:
             in_ch += 1
-
+        if self.grad_val: in_ch+=1
+        if self.grad_val: in_ch+=1
         min_feat_map_size = args.get('min_feat_map_size', 2)
         self.dropout = None
         self.max_hcfs = []
@@ -215,9 +218,19 @@ class ResNet(nn.Module):
             std_val = torch.std(XV, dim=1)
         if self.log_var:
             log_ten, log_var = slidecore.net.calc_drv.compute_LoG(X)
+        if self.mean_val:
+            mean_val = torch.mean(X)
+            mean_val /= 255
+
+        if self.grad_val:
+            grad_val = slidecore.net.calc_drv.compute_grad(X, grad_thr=0.1)
+            grad_val = torch.mean(grad_val)
+            grad_val /= 255
         # resize the tensor to what we have been train with
         #X = self.resize_ten(X)
         X = self.norm(X)
+        mean_val, grad_val = None, None
+
         if self.log_var:
             N,C,H,W = X.shape
             log_ten = log_ten.reshape((N, 1, H, W))
@@ -241,6 +254,10 @@ class ResNet(nn.Module):
             XX = torch.cat((XX, SV), dim=1)
         if self.log_var:
             XX = torch.cat((XX,log_var), dim=1)
+        if self.mean_val:
+            XX = torch.cat((XX, mean_val), dim=1)
+        if self.grad_val:
+            XX = torch.cat((XX, grad_val), dim=1)
         Y = self.head(XX, target=target)
         return Y
 
