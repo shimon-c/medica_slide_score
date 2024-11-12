@@ -24,6 +24,7 @@ fig.subplots_adjust(bottom=0.2)
 fig.set_size_inches(figsize[0],figsize[1])
 
 ax_txt = None
+txt_btn = None
 img1_path=r"C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\BadFocus\ANONFACHSI1RE_2_1_1_9.jpeg"
 img2_path=r"C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\BadFocus\ANONFACHSI1RE_2_1_4_11.jpeg"
 class Index:
@@ -43,6 +44,7 @@ class Index:
             self.img_list = file_names
         else:
             file_names = self.collect_files(root_dir, file_exten=wildcard)
+            file_names = list(set(file_names))
             self.img_list = [[fn,-1] for fn in file_names]
             self.ind = 0
         self.root_dir = root_dir
@@ -63,35 +65,37 @@ class Index:
 
     def show_current_image(self):
         self.ind = self.ind % len(self.img_list)
-        label = f'{self.ind}/{len(self.img_list)}'
-        print(label)
-        if ax_txt is not None:
-            ax_txt.text(0.01, 0.05, label,
-                    verticalalignment='center',
-                    horizontalalignment='center',
-                    transform=ax.transAxes)
+        textstr = f'{self.ind}/{len(self.img_list)}'
+        print(textstr)
+
         img_path = self.img_list[self.ind][0]
         self.cur_img_name = img_path
+        # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        # ax_txt.text(0.5, 0.05,textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+        if txt_btn is not None:
+            txt_btn.label.set_text(textstr)
         img = cv2.imread(img_path)
         ax.imshow(img)
         #plt.title(img_path)
         plt.draw()
 
-    def next(self, event):
+    def next(self, event=None):
         self.ind += 1
         self.show_current_image()
 
-    def prev(self, event):
+    def prev(self, event=None):
         self.ind -= 1
         self.show_current_image()
 
     def ok(self, event):
         print('ok')
         self.img_list[self.ind][1] = 1
+        self.next()
 
     def bad(self, event):
         print('bad')
         self.img_list[self.ind][1] = 0
+        self.next()
 
     def save(self,event):
         print('save')
@@ -109,6 +113,8 @@ ax_save = fig.add_axes([0.35, 0.05, 0.1, 0.075])
 axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
 axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
 
+ax_txt = fig.add_axes([0.5, 0.05, 0.1, 0.075])
+
 #ax_txt = fig.add_axes([0.5, 0.05, 0.1, 0.075])
 callback = Index(root_dir=args.root_dir, wildcard=args.file_exten, csv_path=args.csv_file)
 
@@ -118,6 +124,9 @@ bbad = Button(ax_bad, 'BAD')
 bbad.on_clicked(callback.bad)
 save_b = Button(ax_save, 'Save')
 save_b.on_clicked(callback.save)
+
+# Placeholder
+txt_btn = Button(ax_txt, '')
 
 bnext = Button(axnext, 'Next')
 bnext.on_clicked(callback.next)

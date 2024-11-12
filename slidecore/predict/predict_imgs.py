@@ -130,8 +130,9 @@ class PredictImgs:
             for kk in range(len(img_list)):
                 id = np.argmax(y_cur[kk,:])
                 cid = 1 if id == 1 else 0
-                if self.cls_tile_thr > 0 and cid!= 1:
-                    cid = 1 if y_cur[kk, 1] >= self.cls_tile_thr else 0
+                pr_bad = y_cur[kk, 1]
+                if self.cls_tile_thr > 0: #and cid!= 1:
+                    cid = 1 if pr_bad >= self.cls_tile_thr else 0
                 cur_var = np.var(img_list[kk])
                 if cur_var<=slideapp.config.tile_std_thr:
                     cid = 0
@@ -215,7 +216,7 @@ def collect_slides(root_dir, file_exten='ndpi',files_list_in=None):
     for dirpath, dirs, files in os.walk(root_dir):
         for filename in files:
             # should be 26
-            if len(filename) < 6:
+            if len(filename) < 26:
                 continue
             fname = os.path.join(dirpath, filename)
             if fname.endswith(file_exten):

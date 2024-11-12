@@ -1,3 +1,5 @@
+import sys
+
 import slidecore.predict.predict_imgs
 from slidecore.predict.predict_imgs import PredictImgs as PredictImgs
 import os
@@ -31,7 +33,8 @@ class SlideMgr:
             os.remove(res_file)
         except Exception as e:
             print(f'Caught: {e}')
-        self.res_file = open(res_file, "+w")
+        self.res_file_str = res_file
+        self.res_file = open(self.res_file_str, "+w")
         try:
             os.remove(log_file)
         except Exception as e:
@@ -80,16 +83,18 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices
-        #file_names = self.filter_files(files=file_names)
+        file_names = self.filter_files(files=file_names)
+        file_names = list(set(file_names))
         work_list = []
         num_bad = 0
         num_good = 0
         num_failed = 0
         good_dir, bad_dir = None, None
-        print(f'---> work_on_slides: collected {len(file_names)} slides  <---')
+        print(f'\n---> work_on_slides: collected {len(file_names)} slides  <---\n')
         if good_flag is None:
             shutil.rmtree(self.output_dir, ignore_errors=True)
             os.makedirs(self.output_dir, exist_ok=True)
+            self.res_file = open(self.res_file_str, "+w")
             good_dir = os.path.join(self.output_dir, 'good_dir')
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
@@ -158,7 +163,7 @@ class SlideMgr:
         print(f'work_list:\n{work_list}')
         for tp in work_list:
             print(f'{tp}\n')
-        print(f'num_failed:{num_failed}, num files: {len(file_names)}')
+        print(f'num_failed:{num_failed}, num files: {len(file_names)}, num_good:{num_good}, num_bad:{num_bad}')
         num_files = len(file_names) - num_failed
         if num_files<=0: num_files=1
         ret_str = ''
@@ -171,6 +176,7 @@ class SlideMgr:
                 TB = num_bad / num_files
                 ret_str = f'Bad Scan True Bad:{TB}, scanned:{num_files}'
                 print(ret_str)
+        print(f'results:{self.res_file_str}')
         return ret_str
 
 
@@ -193,6 +199,7 @@ if __name__ == "__main__":
     # Check if run mode (not test)
     if slideapp.config.run_flag:
         sm_app.run()
+        sys.exit(0)
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
     res_str = f'{res_str}\n{rstr}'
