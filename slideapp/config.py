@@ -25,5 +25,5 @@ model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 #input_dir="/home/shimon/hama2/"
 #For test
 tiles_working_dir="/mnt/medica/medica_data/tiles_dir"
-input_dir="/mnt/medica/medica_data/test_folder_out"
+input_dir="/mnt/medica/medica_data/test_folder_for_train"
 out_dir="/mnt/medica/medica_data/for_test_folder_out"
