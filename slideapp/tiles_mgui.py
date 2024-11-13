@@ -13,7 +13,7 @@ def get_cmd_args():
     ap.add_argument('--root_dir', type=str, required=True, help="Root directory of slides")
     ap.add_argument('--csv_file', type=str, required=None, help="path to previous csv")
     ap.add_argument('--file_exten', type=str, default="jpeg", help="path to previous csv")
-    ap.add_argument('--skip_std', type=float, default=20, help="Value of variance to skip")
+    ap.add_argument('--skip_std', type=float, default=10, help="Value of variance to skip")
     args = ap.parse_args()
     return args
 
