@@ -35,6 +35,7 @@ checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\chec
 ##### Data set Params   #############
 #train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set'
 train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set'
+train_csv_file: "C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\good_bad_train_shimon.cohen.csv"
 #test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set'
 test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
 train_good: 'GoodFocus'

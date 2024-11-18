@@ -13,6 +13,8 @@ from albumentations.core.transforms_interface import ImageOnlyTransform
 #         A.ToGray(p=0.1),
 #         A.ChannelShuffle(p=0.05),
 import albumentations as A
+import pandas as pd
+
 from albumentations import (
     HorizontalFlip, ShiftScaleRotate, CLAHE, RandomRotate90,
     Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
@@ -36,7 +38,8 @@ class DataSet(TorchDataset):
     BAD_IMG=1        #2
     def __init__(self, root_dir=None,
                  good_path:str='', bad_path:str=None, not_rel:str=None, end_str='.jpeg',
-                 xsize=512, ysize=512, test_flag=False, augmentations=[]):
+                 xsize=512, ysize=512, test_flag=False, augmentations=[],
+                 train_csv_file=None):
         super(DataSet,self).__init__()
         assert root_dir is not None
         assert good_path!='' and good_path is not None
@@ -50,7 +53,7 @@ class DataSet(TorchDataset):
         self.all_imgs=[]
         self.exten = end_str
         self.xsize,self.ysize = xsize,ysize
-        self.good_images = self.load_images_from_root_dir(root_dir=good_path, names_list=self.good_images)
+
         self.augs = None
         self.max_std = 1
         self.resize_obj = Resize (ysize, xsize, interpolation=1, always_apply=False, p=1)
@@ -87,16 +90,21 @@ class DataSet(TorchDataset):
             #aug_list.append(A.Resize(height=ysize, width=xsize))
             aug_list.append(A.RandomResizedCrop(height=ysize, width=xsize))
             self.augs = Compose(aug_list)
-        for img in self.good_images:
-            self.all_imgs.append((img, DataSet.GOOD_IMG))
-        if bad_path is not None:
-            self.bad_images = self.load_images_from_root_dir(root_dir=bad_path, names_list=self.bad_images)
-        for img in self.bad_images:
-            self.all_imgs.append((img, DataSet.BAD_IMG))
-        if not_rel is not None:
-            self.not_rel_images = self.load_images_from_root_dir(root_dir=not_rel, names_list=self.not_rel_images)
-        for img in self.not_rel_images:
-            self.all_imgs.append((img, DataSet.NOT_RELV_IMG))
+        if train_csv_file is None:
+            # Old method
+            self.good_images = self.load_images_from_root_dir(root_dir=good_path, names_list=self.good_images)
+            for img in self.good_images:
+                self.all_imgs.append((img, DataSet.GOOD_IMG))
+            if bad_path is not None:
+                self.bad_images = self.load_images_from_root_dir(root_dir=bad_path, names_list=self.bad_images)
+            for img in self.bad_images:
+                self.all_imgs.append((img, DataSet.BAD_IMG))
+            if not_rel is not None:
+                self.not_rel_images = self.load_images_from_root_dir(root_dir=not_rel, names_list=self.not_rel_images)
+            for img in self.not_rel_images:
+                self.all_imgs.append((img, DataSet.NOT_RELV_IMG))
+        else:
+            self.read_train_file(train_csv_file)
         self.clear_low_std_imgs()
         # Compute number of classes
         self.cls_num = 0
@@ -106,6 +114,13 @@ class DataSet(TorchDataset):
         self.dataset_stat_str = f'bad_imgs:{len(self.bad_images)}, good_imgs:{len(self.good_images)}, not_rel:{len(self.not_rel_images)}'
         print(self.dataset_stat_str)
 
+    def read_train_file(self, train_csv_file):
+        df = pd.read_csv(train_csv_file)
+        N,C = df.shape
+        self.all_imgs = []
+        for k in range(N):
+            fn, cid = df.iloc(0,0), df.iloc(0,1)
+            self.all_imgs.append(fn,cid)
 
     def load_images_from_root_dir(self, root_dir:str=None, names_list=[]):
         for root, dirs, files in os.walk(root_dir, topdown=False):
