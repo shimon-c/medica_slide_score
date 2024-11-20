@@ -99,7 +99,8 @@ def train(args, log_obj=None):
     train_ds = slidecore.net.datatset.DataSet(root_dir=args['train_set_dir'],
                                               good_path=good_path, bad_path=bad_path,
                                               not_rel=not_rel, xsize=xsize, ysize=ysize,
-                                              augmentations=args['augmentations'])
+                                              augmentations=args['augmentations'],
+                                              train_csv_file=args['train_csv_file'])
     log_obj.info(f'----Train stat -----\n{train_ds.dataset_stat_str}\nds-size:{len(train_ds)}\n--------\n')
     max_std = train_ds.max_std
     num_cls = train_ds.get_num_of_classes()

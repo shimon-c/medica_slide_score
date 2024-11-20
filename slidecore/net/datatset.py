@@ -105,7 +105,8 @@ class DataSet(TorchDataset):
                 self.all_imgs.append((img, DataSet.NOT_RELV_IMG))
         else:
             self.read_train_file(train_csv_file)
-        self.clear_low_std_imgs()
+        if test_flag:
+            self.clear_low_std_imgs()
         # Compute number of classes
         self.cls_num = 0
         for tp in self.all_imgs:
@@ -119,8 +120,9 @@ class DataSet(TorchDataset):
         N,C = df.shape
         self.all_imgs = []
         for k in range(N):
-            fn, cid = df.iloc(0,0), df.iloc(0,1)
-            self.all_imgs.append(fn,cid)
+            fn, cid = df.iloc[k,1], df.iloc[k,2]
+            if cid>=0:
+                self.all_imgs.append((fn,cid))
 
     def load_images_from_root_dir(self, root_dir:str=None, names_list=[]):
         for root, dirs, files in os.walk(root_dir, topdown=False):
