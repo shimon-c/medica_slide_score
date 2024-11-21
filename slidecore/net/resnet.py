@@ -142,10 +142,11 @@ class ResNet(nn.Module):
         self.log_var = 'LoG' in args['hcf_list']
         self.grad_val = 'Grad' in args['hcf_list']
         self.mean_val = 'mean' in args['hcf_list']
+        head_hcf = 0
         if self.log_var:
             in_ch += 1
-        if self.grad_val: in_ch+=1
-        if self.grad_val: in_ch+=1
+        if self.grad_val: head_hcf+=1
+        if self.mean_val: head_hcf+=1
         min_feat_map_size = args.get('min_feat_map_size', 2)
         self.dropout = None
         self.max_hcfs = []
@@ -176,6 +177,7 @@ class ResNet(nn.Module):
         self.layers_list = nn.ModuleList(res_units)
         ch += self.std_flag
         ch += self.log_var
+        ch += head_hcf
         self.arg = args
         if args['arc_cos_margin']>=0 and args['arc_cos_rad']>0:
             self.head = slidecore.net.arc_cos_head.ArcCosHead(in_feats=ch, args=args)
@@ -210,26 +212,30 @@ class ResNet(nn.Module):
         return y
 
     def forward(self, X, target=None):
+        mean_val, grad_val = None, None
         if type(X) is not torch.Tensor or type(X) is np.ndarray:
             X = self.to_tensor(X)
             #X = torch.from_numpy(X)
+        N, C, H, W = X.shape
+        XV = X.view(X.size(0),-1)
         if self.std_flag:
             XV = X.view(X.size(0), -1)
             std_val = torch.std(XV, dim=1)
         if self.log_var:
             log_ten, log_var = slidecore.net.calc_drv.compute_LoG(X)
         if self.mean_val:
-            mean_val = torch.mean(X)
+            mean_val = torch.mean(XV, dim=1)
             mean_val /= 255
 
         if self.grad_val:
             grad_val = slidecore.net.calc_drv.compute_grad(X, grad_thr=0.1)
-            grad_val = torch.mean(grad_val)
+            grad_val = grad_val.view(N, -1)
+            grad_val = torch.mean(grad_val, dim=1)
             grad_val /= 255
         # resize the tensor to what we have been train with
         #X = self.resize_ten(X)
         X = self.norm(X)
-        mean_val, grad_val = None, None
+
 
         if self.log_var:
             N,C,H,W = X.shape
@@ -255,8 +261,10 @@ class ResNet(nn.Module):
         if self.log_var:
             XX = torch.cat((XX,log_var), dim=1)
         if self.mean_val:
+            mean_val = mean_val.view(N, 1)
             XX = torch.cat((XX, mean_val), dim=1)
         if self.grad_val:
+            grad_val = grad_val.view(N, 1)
             XX = torch.cat((XX, grad_val), dim=1)
         Y = self.head(XX, target=target)
         return Y

@@ -13,7 +13,7 @@ head_arch: [2048, 2048, 1024]
 #head_arch: [2048, 2048]
 resnet50: True
 shortcut2: False
-arc_cos_rad: 32
+arc_cos_rad: -32
 arc_cos_margin: 0.001
 gpu: 0
 in_ch: 3
