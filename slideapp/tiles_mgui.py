@@ -32,6 +32,7 @@ class Index:
     def __init__(self, root_dir, csv_path=None, wildcard='*.jpg', skip_std=-1):
         # dir = os.path.join(root_dir, f'**/{wildcard}')
         # file_names = glob.glob(dir)
+        self.img = None
         if csv_path is not None:
             df = pd.read_csv(csv_path)
             N,num_cols = df.shape
@@ -43,6 +44,12 @@ class Index:
                 if cid >= 0:
                     self.ind = k
             self.img_list = file_names
+            # Locate last classified element
+            for k in range(N-1,0,-1):
+                fn, cid = df.iloc[k, 1:]
+                if cid >= 0:
+                    break;
+            self.ind = k
         else:
             file_names = self.collect_files(root_dir, file_exten=wildcard)
             file_names = list(set(file_names))
@@ -97,6 +104,9 @@ class Index:
             txt_btn.label.set_text(textstr)
 
         ax.imshow(img)
+        if self.img is not None:
+            del self.img
+        self.img = img
         #plt.title(img_path)
         plt.draw()
 
