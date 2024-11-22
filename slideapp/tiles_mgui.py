@@ -87,6 +87,7 @@ class Index:
         img = None
         while img_var <= self.skip_std and not prev_flag:
             img = cv2.imread(img_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_var = np.var(img)
             print(f'img_var: {img_var}')
             if img_var <= self.skip_std and self.ind < len(self.img_list)-1:
