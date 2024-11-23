@@ -46,4 +46,8 @@ if __name__ == '__main__':
     args = get_args()
     df = get_csv(args.csv_path)
     filter_csv(df, pred_path=args.classifier_path)
-    df.to_csv(args.csv_path)
+    dir, csv_name = os.path.dirname(args.csv_path), os.path.basename(args.csv_path)
+    csv_name_list = csv_name.split('.csv')
+    csv_name = f'{csv_name_list[0]}_cleared.csv'
+    csv_name = os.path.join(dir, csv_name)
+    df.to_csv(csv_name)

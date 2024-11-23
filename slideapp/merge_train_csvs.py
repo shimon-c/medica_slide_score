@@ -1,0 +1,31 @@
+import os
+import pandas as pd
+import argparse
+
+def get_args():
+    ap = argparse.ArgumentParser("Merge train csvs")
+    ap.add_argument('--file_name', type=str,required=True, help="Path to a file that constains csv")
+    args = ap.parse_args()
+    return args
+
+def merge_list(csv_file_names=None):
+    csv_names = []
+    with open(csv_file_names, 'r') as file:
+        # Read each line in the file
+        for line in file:
+            csv_names.append(line)
+    df = pd.DataFrame()
+    dir = None
+    for csv in csv_names:
+        csv = csv.strip('\n')
+        dir = os.path.dirname(csv)
+        df1 = pd.read_csv(csv)
+        df = pd.concat([df,df1])
+    return df,dir
+
+if __name__ == '__main__':
+    args = get_args()
+    df,dir = merge_list(args.file_name)
+    csv_name = os.path.join(dir,'merged_train.csv')
+    df.to_csv(csv_name)
+
