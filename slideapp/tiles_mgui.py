@@ -35,7 +35,7 @@ class Index:
         # file_names = glob.glob(dir)
         self.img = None
         self.z_test = 1
-        if csv_path is not None:
+        if csv_path is not None and os.path.exists(csv_path):
             df = pd.read_csv(csv_path)
             N,num_cols = df.shape
             file_names = []
