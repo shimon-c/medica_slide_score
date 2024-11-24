@@ -14,7 +14,7 @@ def get_cmd_args():
     ap.add_argument('--csv_file', type=str, required=None, help="path to previous csv")
     ap.add_argument('--file_exten', type=str, default="jpeg", help="path to previous csv")
     ap.add_argument('--skip_std', type=float, default=5, help="Value of variance to skip")
-    ap.add_argument('--skip_mean', type=float, default=-1, help="Value of variance to skip")
+    ap.add_argument('--skip_mean', type=float, default=235, help="Value of variance to skip")
     args = ap.parse_args()
     return args
 
@@ -61,6 +61,7 @@ class Index:
         self.cur_img_name = None
         self.skip_std = skip_std
         self.skip_mean = skip_mean
+        print(f'skip_mean:{self.skip_mean}\t skip_std:{self.skip_std}')
         self.show_current_image()
 
     def collect_files(self, root_dir, file_exten='jpg', files_list=None):
@@ -93,9 +94,9 @@ class Index:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_std = np.std(img)
 
-
-            z_test = np.abs(np.mean(img)-250)/img_std
-            print(f'img_std: {img_std}, z_test:{z_test}')
+            img_mean = np.mean(img)
+            z_test = np.abs(img_mean-self.skip_mean)/img_std
+            print(f'img_mean: {img_mean}, img_std: {img_std}, z_test:{z_test}')
             if z_test <= self.z_test and self.ind < len(self.img_list)-1:
                 self.img_list[self.ind][1] = 0
                 self.ind += 1
@@ -155,7 +156,8 @@ axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
 ax_txt = fig.add_axes([0.45, 0.05, 0.2, 0.075])
 
 #ax_txt = fig.add_axes([0.5, 0.05, 0.1, 0.075])
-callback = Index(root_dir=args.root_dir, wildcard=args.file_exten, csv_path=args.csv_file, skip_std=args.skip_std)
+callback = Index(root_dir=args.root_dir, wildcard=args.file_exten, csv_path=args.csv_file,
+                 skip_std=args.skip_std,skip_mean=args.skip_mean)
 
 bok = Button(ax_ok, 'OK')
 bok.on_clicked(callback.ok)
