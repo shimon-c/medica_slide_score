@@ -11,6 +11,7 @@ import logging
 from datetime import date
 import cv2
 
+#working dir: /mnt/medica/medica_lab_project/medica_slide_score/
 #source ~/venv/bin/activate
 # source /home/shimon/venv/bin/activate
 
