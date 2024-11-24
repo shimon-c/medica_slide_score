@@ -13,7 +13,8 @@ def get_cmd_args():
     ap.add_argument('--root_dir', type=str, required=True, help="Root directory of slides")
     ap.add_argument('--csv_file', type=str, required=None, help="path to previous csv")
     ap.add_argument('--file_exten', type=str, default="jpeg", help="path to previous csv")
-    ap.add_argument('--skip_std', type=float, default=10, help="Value of variance to skip")
+    ap.add_argument('--skip_std', type=float, default=5, help="Value of variance to skip")
+    ap.add_argument('--skip_mean', type=float, default=-1, help="Value of variance to skip")
     args = ap.parse_args()
     return args
 
@@ -29,10 +30,11 @@ txt_btn = None
 img1_path=r"C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\BadFocus\ANONFACHSI1RE_2_1_1_9.jpeg"
 img2_path=r"C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\BadFocus\ANONFACHSI1RE_2_1_4_11.jpeg"
 class Index:
-    def __init__(self, root_dir, csv_path=None, wildcard='*.jpg', skip_std=-1):
+    def __init__(self, root_dir, csv_path=None, wildcard='*.jpg', skip_std=-1, skip_mean=-1):
         # dir = os.path.join(root_dir, f'**/{wildcard}')
         # file_names = glob.glob(dir)
         self.img = None
+        self.z_test = 1
         if csv_path is not None:
             df = pd.read_csv(csv_path)
             N,num_cols = df.shape
@@ -58,6 +60,7 @@ class Index:
         self.root_dir = root_dir
         self.cur_img_name = None
         self.skip_std = skip_std
+        self.skip_mean = skip_mean
         self.show_current_image()
 
     def collect_files(self, root_dir, file_exten='jpg', files_list=None):
@@ -83,14 +86,17 @@ class Index:
         self.cur_img_name = img_path
         # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         # ax_txt.text(0.5, 0.05,textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
-        img_var = self.skip_std
+        img_std = self.skip_std
         img = None
-        while img_var <= self.skip_std and not prev_flag:
+        while img_std <= self.skip_std and not prev_flag:
             img = cv2.imread(img_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img_var = np.var(img)
-            print(f'img_var: {img_var}')
-            if img_var <= self.skip_std and self.ind < len(self.img_list)-1:
+            img_std = np.std(img)
+
+
+            z_test = np.abs(np.mean(img)-250)/img_std
+            print(f'img_std: {img_std}, z_test:{z_test}')
+            if z_test <= self.z_test and self.ind < len(self.img_list)-1:
                 self.img_list[self.ind][1] = 0
                 self.ind += 1
                 self.ind = self.ind % len(self.img_list)
