@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import glob
 import os
+import gc
 from matplotlib.widgets import Button
 import pandas as pd
 import argparse
@@ -114,6 +115,7 @@ class Index:
         ax.imshow(img)
         if self.img is not None:
             del self.img
+            gc.collect()
         self.img = img
         #plt.title(img_path)
         plt.draw()
