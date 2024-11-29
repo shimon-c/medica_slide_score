@@ -18,9 +18,11 @@ def merge_list(csv_file_names=None):
     dir = None
     for csv in csv_names:
         csv = csv.strip('\n')
-        dir = os.path.dirname(csv)
-        df1 = pd.read_csv(csv)
-        df = pd.concat([df,df1])
+        if os.path.exists(csv):
+            dir = os.path.dirname(csv)
+            df1 = pd.read_csv(csv)
+            df = pd.concat([df,df1])
+    dir = os.path.dirname(csv_file_names)
     return df,dir
 
 if __name__ == '__main__':

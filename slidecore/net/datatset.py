@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 import torchvision.transforms as transforms
+import albumentations as A
 from albumentations.core.transforms_interface import ImageOnlyTransform
 # RandomResizedCrop
 # A.CLAHE(p=0.1),
@@ -105,8 +106,8 @@ class DataSet(TorchDataset):
                 self.all_imgs.append((img, DataSet.NOT_RELV_IMG))
         else:
             self.read_train_file(train_csv_file)
-        if test_flag:
-            self.clear_low_std_imgs()
+        #if test_flag:
+        self.clear_low_std_imgs()
         # Compute number of classes
         self.cls_num = 0
         for tp in self.all_imgs:
@@ -119,10 +120,17 @@ class DataSet(TorchDataset):
         df = pd.read_csv(train_csv_file)
         N,C = df.shape
         self.all_imgs = []
+        num_good,num_bad=0,0
         for k in range(N):
-            fn, cid = df.iloc[k,1], df.iloc[k,2]
+            fn, cid = df.iloc[k,2], df.iloc[k,3]
+            cid = int(cid)
             if cid>=0:
                 self.all_imgs.append((fn,cid))
+                if cid==0:
+                    num_good += 1
+                else:
+                    num_bad += 1
+        print(f'num_good:{num_good}\tnum_bad:{num_bad}')
 
     def load_images_from_root_dir(self, root_dir:str=None, names_list=[]):
         for root, dirs, files in os.walk(root_dir, topdown=False):

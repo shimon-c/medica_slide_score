@@ -3,11 +3,15 @@
 #ysize: 128
 xsize: 256
 ysize: 256
-batch_size: 12
+#xsize: 512
+#ysize: 512
+batch_size: 32
 #arch: [[64,3], [128,4], [256,6],[512,3]]
 #arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
 arch: [[6,3],[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
 arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
+arch: [[6,3], [6,3], [12,3], [32,3], [128,3], [128,3]]
+arch: [[16,3], [32,3], [64,3], [128,3], [128,3]]
 head_arch: [3000, 3000]
 head_arch: [2048, 2048, 1024]
 #head_arch: [2048, 2048]
@@ -37,6 +41,9 @@ checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\chec
 #train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set'
 train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set'
 train_csv_file: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\good_bad_train_shimon.cohen.csv'
+train_csv_file: '/mnt/medica/medica_data/merged_train.csv'
+test_csv_file: '/mnt/medica/medica_data/merged_train.csv'
+checkpoints_dir: '/mnt/medica/checkpoints'
 #test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set'
 test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
 train_good: 'GoodFocus'
@@ -46,7 +53,7 @@ test_good: 'GoodFocus'
 test_bad: 'BadFocus'
 end_str: '.jpeg'
 
-nepochs: 40
+nepochs: 220
 num_workers: 4
 
 augmentations: [RandomScale, GaussNoise, Blur, OpticalDistortion, Flip]

@@ -116,6 +116,7 @@ class PredictImgs:
             os.makedirs(good_dir, exist_ok=True)
         self.num_bad = 0
         pred_list = []
+        ret_tiles_list = []
         N = len(file_names)
         k = 0
         while k<N:
@@ -142,6 +143,7 @@ class PredictImgs:
                     cur_res = tiles_list[k_id]
                     cur_res = cur_res + (cid,)
                     tiles_list[k_id] = cur_res
+                ret_tiles_list.append((file_names[k+kk], cid))
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])
                     cur_dir = bad_dir if cid==1 else good_dir

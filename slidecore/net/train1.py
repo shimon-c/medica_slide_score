@@ -109,7 +109,8 @@ def train(args, log_obj=None):
     resnet.set_max_hcf([max_std])
     test_ds = slidecore.net.datatset.DataSet(root_dir=args['test_set_dir'],
                                          good_path=test_good, bad_path=test_bad,
-                                         xsize=xsize, ysize=ysize, test_flag=True)
+                                         xsize=xsize, ysize=ysize, test_flag=True,
+                                             train_csv_file=args['test_csv_file'])
     tr_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, shuffle=True)
     test_ld = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
     weight_decay = args['weight_decay']
