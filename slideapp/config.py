@@ -20,6 +20,7 @@ run_flag = True     # Run mode
 # work at lab
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"
+model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862.pt"
 #out_dir="/mnt/medica/medica_data/test_folder_out"
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"

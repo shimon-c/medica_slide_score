@@ -11,6 +11,7 @@ import slidecore.net.ensemble
 from slidecore.net.ensemble import Ensemble as Ensemble
 from slidecore.net.resnet import ResNet as ResNet
 import slidecore.net.datatset
+import slidecore.net.calc_drv
 import numpy as np
 import cv2
 import torchvision
@@ -173,13 +174,14 @@ class PredictImgs:
             cur_y,cur_x = row*th, col*tw
             slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
         # Next draw the rectanle
-        red = (0,0,255)
-        thickness = 2
+        red = (0,0,255)         # BGR
+        green = (0,255,0)
+        thickness = 8
         for k in range(N):
             fname,row,col,cid = tiles_list[k]
             if cid > 0:
                 cur_y,cur_x = row*th, col*tw
-                slide_img = cv2.rectangle(slide_img, (cur_x, cur_y), (cur_x+tw,cur_y+th), red, thickness=thickness)
+                slide_img = cv2.rectangle(slide_img, (cur_x, cur_y), (cur_x+tw,cur_y+th), green, thickness=thickness)
         dirp = os.path.dirname(tiles_list[0][0])
         return slide_img
 

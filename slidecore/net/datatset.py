@@ -54,6 +54,8 @@ class DataSet(TorchDataset):
         self.all_imgs=[]
         self.exten = end_str
         self.xsize,self.ysize = xsize,ysize
+        # default values have to compute
+        self.white_mean, self.white_std =235,5
 
         self.augs = None
         self.max_std = 1
@@ -118,11 +120,12 @@ class DataSet(TorchDataset):
 
     def read_train_file(self, train_csv_file):
         df = pd.read_csv(train_csv_file)
+        file_idx, class_idx = df.columns.get_loc('file_name'),df.columns.get_loc('class')
         N,C = df.shape
         self.all_imgs = []
         num_good,num_bad=0,0
         for k in range(N):
-            fn, cid = df.iloc[k,2], df.iloc[k,3]
+            fn, cid = df.iloc[k,file_idx], df.iloc[k,class_idx]
             cid = int(cid)
             if cid>=0:
                 self.all_imgs.append((fn,cid))
@@ -131,6 +134,25 @@ class DataSet(TorchDataset):
                 else:
                     num_bad += 1
         print(f'num_good:{num_good}\tnum_bad:{num_bad}')
+        self.compute_white_stat()
+
+    def compute_white_stat(self, margin=5):
+        vals_list = []
+        for (fn,cid) in self.all_imgs:
+            img = cv2.imread(fn)
+            W,H,C = img.shape
+            m1 = np.mean(img[:,0:margin])
+            m2 = np.mean(img[:, -margin:-1])
+            vals_list.append(m1)
+            vals_list.append(m2)
+        vals_list.sort()
+        mid = round(len(vals_list)/2)
+        median = sum(vals_list[mid-1:mid+2])/3
+        mid_range = int(mid*0.8)
+        new_list = vals_list[mid-mid_range:mid+mid_range]
+        arr = np.array(new_list)
+        ssig = np.std(arr)
+        return median, ssig
 
     def load_images_from_root_dir(self, root_dir:str=None, names_list=[]):
         for root, dirs, files in os.walk(root_dir, topdown=False):

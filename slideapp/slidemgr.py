@@ -10,12 +10,16 @@ import time
 import logging
 from datetime import date
 import cv2
+import datetime
+# https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
+import smtplib          # to send emails every day
 
 #working dir: /mnt/medica/medica_lab_project/medica_slide_score/
 #source ~/venv/bin/activate
 # source /home/shimon/venv/bin/activate
 
 # Currently need to perform on windows:  pip install albumentations==1.1.0
+# run command: /mnt/medica/medica_lab_project/medica_slide_score$ python ./slideapp/slidemgr.py
 
 class SlideMgr:
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
@@ -50,13 +54,15 @@ class SlideMgr:
         iter = 0
         while True and iter < max_iters:
             cur_date = date.today()
-            print(f'slidemgr date:{cur_date}')
+            current_time = datetime.datetime.now()
+            hour = current_time.hour
+            print(f'slidemgr date:{hour}, {current_time.day}/{current_time.month}/{current_time.year} \n')
             if prv_date is None or cur_date > prv_date:
                 self.work_on_slides(root_dir=self.input_dir,
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
-            time.sleep(60)
+            time.sleep(60*2)
             iter += 1
 
     def collect_dirs(self, input_dir = None):
