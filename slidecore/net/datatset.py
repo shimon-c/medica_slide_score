@@ -40,7 +40,7 @@ class DataSet(TorchDataset):
     def __init__(self, root_dir=None,
                  good_path:str='', bad_path:str=None, not_rel:str=None, end_str='.jpeg',
                  xsize=512, ysize=512, test_flag=False, augmentations=[],
-                 train_csv_file=None):
+                 train_csv_file=None, compute_white_stat=False):
         super(DataSet,self).__init__()
         assert root_dir is not None
         assert good_path!='' and good_path is not None
@@ -108,6 +108,9 @@ class DataSet(TorchDataset):
                 self.all_imgs.append((img, DataSet.NOT_RELV_IMG))
         else:
             self.read_train_file(train_csv_file)
+        if compute_white_stat:
+            self.white_mean, self.white_std = self.compute_white_stat()
+            print(f'white_mean:{self.white_mean}, white_std:{self.white_std}')
         #if test_flag:
         self.clear_low_std_imgs()
         # Compute number of classes
@@ -134,7 +137,7 @@ class DataSet(TorchDataset):
                 else:
                     num_bad += 1
         print(f'num_good:{num_good}\tnum_bad:{num_bad}')
-        self.compute_white_stat()
+        #self.compute_white_stat()
 
     def compute_white_stat(self, margin=5):
         vals_list = []
@@ -211,13 +214,32 @@ class DataSet(TorchDataset):
 good_path = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set\GoodFocus"
 bad_path = r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set\BadFocus"
 not_rel=r"C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set\NotRelevant"
+import slidecore.net.yaml_obj
+import argparse
+def get_args():
+    ap = argparse.ArgumentParser('train 1')
+    ap.add_argument('--yaml_path', type=str, required=True, help="Full path of yaml file")
+    args = ap.parse_args()
+    yaml_obj = slidecore.net.yaml_obj.YamlObj(yaml_path=args.yaml_path)
+    yaml_args = yaml_obj.get_params()
+    return yaml_args
+
 
 if __name__ == '__main__':
-    data = DataSet(good_path=good_path,bad_path=bad_path,not_rel=not_rel)
+    args = get_args()
+    xsize,ysize=256,256
+    data = DataSet(root_dir=args['train_set_dir'],
+                    good_path=good_path, bad_path=bad_path, not_rel=not_rel, xsize=xsize, ysize=ysize,
+                    augmentations=args['augmentations'],
+                    train_csv_file=args['train_csv_file'],
+                   compute_white_stat=True)
+
     data.shuffle()
     ds_size = len(data)
     print(f'Datsize:{ds_size}')
     lab_str = ['Good', 'NotRel', 'Bad']
+    mean, ssig = data.compute_white_stat()
+    print(f'white start mean{mean}, std:{ssig}')
     for k in range(ds_size):
         img,lab = data[k]
         plt.title(lab_str[lab])

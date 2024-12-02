@@ -156,9 +156,11 @@ class PredictImgs:
         bad_p = nones/len(pred_list)
         slide_img = None
         if tiles_list is not None:
-            slide_img = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
-                                  tile_h=tile_h, tile_w=tile_w,
-                                  n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
+            slide_img,margin_problem = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
+                                                            tile_h=tile_h, tile_w=tile_w,
+                                                            n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
+            if margin_problem:
+                bad_p = percentile + 0.1
         return bad_p>=percentile, slide_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
@@ -166,6 +168,7 @@ class PredictImgs:
         H = int((tile_h * n_tile_rows )/slideapp.config.slide_img_down_sample + 0.5)
         W = int((tile_w * n_tile_cols )/slideapp.config.slide_img_down_sample + 0.5)
         slide_img = np.zeros((H,W,3), np.uint8)
+        white_mean, white_std = slideapp.config.white_mean, slideapp.config.white_std
         tw,th = int(tile_w/slideapp.config.slide_img_down_sample), int(tile_h/slideapp.config.slide_img_down_sample)
         for k in range(N):
             fname,row,col,cid = tiles_list[k]
@@ -183,7 +186,20 @@ class PredictImgs:
                 cur_y,cur_x = row*th, col*tw
                 slide_img = cv2.rectangle(slide_img, (cur_x, cur_y), (cur_x+tw,cur_y+th), green, thickness=thickness)
         dirp = os.path.dirname(tiles_list[0][0])
-        return slide_img
+        found_margin_problem = False
+        margin = 5
+        mean_left = np.mean(slide_img[:,0:margin,:])
+        mean_right = np.mean(slide_img[:-margin:-1,:])
+        conf_level = slideapp.config.white_conf
+        left_prob = np.abs(mean_left-white_mean)/white_std > conf_level
+        right_prob = np.abs(mean_right - white_mean) / white_std > conf_level
+        if left_prob:
+            slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
+        if right_prob:
+            slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
+
+        found_margin_problem = left_prob or right_prob
+        return slide_img, found_margin_problem
 
 
 

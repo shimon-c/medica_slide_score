@@ -16,7 +16,9 @@ input_dir=bad_dir
 out_dir=r"E:\medica_data\results"
 tiles_working_dir=r"E:\medica_data\tiles_dir"
 run_flag = True     # Run mode
-
+white_mean = 235.79956452889942
+white_std = 1.663167324510908
+white_conf = 5
 # work at lab
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"
