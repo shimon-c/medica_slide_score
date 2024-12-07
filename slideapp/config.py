@@ -18,9 +18,11 @@ tiles_working_dir=r"E:\medica_data\tiles_dir"
 run_flag = True     # Run mode
 white_mean = 235.79956452889942
 white_std = 1.663167324510908
+white_conf = 3
 tissue_mean=201.8
 tissue_std=40.6
-white_conf = 3
+tissue_z_thr = 0.8  # 0.5
+
 # work at lab
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"

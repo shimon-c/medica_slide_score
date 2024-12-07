@@ -192,7 +192,7 @@ class PredictImgs:
         xmarg, ymarg = 10,10
         ysize,xsize=800,800
         tis_mean,tis_std = slideapp.config.tissue_mean, slideapp.config.tissue_std
-        tis_thr = 0.5
+        tis_thr = slideapp.config.tissue_z_thr
         for y in range(0,H-ysize, ysize):
             val_l = np.mean(slide_img[y:y+ysize,0:xsize, :])
             z_val = np.abs(val_l-tis_mean)/tis_std < tis_thr
