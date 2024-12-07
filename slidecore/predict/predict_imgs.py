@@ -187,12 +187,30 @@ class PredictImgs:
                 slide_img = cv2.rectangle(slide_img, (cur_x, cur_y), (cur_x+tw,cur_y+th), green, thickness=thickness)
         dirp = os.path.dirname(tiles_list[0][0])
         found_margin_problem = False
-        margin = 5
-        mean_left = np.mean(slide_img[:,0:margin,:])
-        mean_right = np.mean(slide_img[:-margin:-1,:])
-        conf_level = slideapp.config.white_conf
-        left_prob = np.abs(mean_left-white_mean)/white_std > conf_level
-        right_prob = np.abs(mean_right - white_mean) / white_std > conf_level
+        margin = 50
+        # Compute horizontal derivivatives
+        xmarg, ymarg = 10,10
+        ysize,xsize=800,800
+        tis_mean,tis_std = slideapp.config.tissue_mean, slideapp.config.tissue_std
+        tis_thr = 0.5
+        for y in range(0,H-ysize, ysize):
+            val_l = np.mean(slide_img[y:y+ysize,0:xsize, :])
+            z_val = np.abs(val_l-tis_mean)/tis_std < tis_thr
+            if z_val:
+                slide_img = cv2.rectangle(slide_img, (0, y), (xsize, y + ysize), green,
+                                          thickness=thickness)
+            val_r = np.mean(slide_img[y:y+ysize,-xsize:, :])
+            z_val = np.abs(val_r - tis_mean) / tis_std < tis_thr
+            if z_val:
+                slide_img = cv2.rectangle(slide_img, (W-xsize, y), (W-1, y + ysize), green,
+                                          thickness=thickness)
+        left_mean = np.mean(slide_img[ymarg:-ymarg, xmarg:2*xmarg , :])
+        right_mean = np.mean(slide_img[ymarg:-ymarg, -2*xmarg:-xmarg, :])
+        left_diff = np.abs(left_mean - white_mean)/white_std
+        right_diff = np.abs(right_mean-white_mean)/white_std
+        std_thr = 5
+        left_prob = left_diff > std_thr
+        right_prob = right_diff > std_thr
         if left_prob:
             slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
         if right_prob:

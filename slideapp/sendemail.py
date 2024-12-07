@@ -38,7 +38,7 @@ subject = "test"
 body = "results"
 sender = "shimon.cohen1958@gmail.com"
 recipients=["shimon.cohen1958@gmail.com"]
-password="Lno.04.2023"
+password=""
 send_email(subject, body, sender, recipients, password)
 
 
