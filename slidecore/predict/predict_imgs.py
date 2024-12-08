@@ -214,7 +214,7 @@ class PredictImgs:
             if z_frac < anova_low or z_frac > anova_hig:
                 z_val = False
             if z_val:
-                righ_prob = True
+                right_prob = True
                 slide_img = cv2.rectangle(slide_img, (W-xsize, y), (W-1, y + ysize), green,
                                           thickness=thickness)
         # left_mean = np.mean(slide_img[ymarg:-ymarg, xmarg:2*xmarg , :])
