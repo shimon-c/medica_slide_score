@@ -207,8 +207,9 @@ class PredictImgs:
                 left_prob = True
                 slide_img = cv2.rectangle(slide_img, (0, y), (xsize, y + ysize), green,
                                           thickness=thickness)
-            val_r = np.mean(slide_img[y:y+ysize,-xsize:, :])
-            std_r = np.std(slide_img[y:y+ysize,-xsize:, :])
+            img_slice = slide_img[y:y+ysize,-xsize:, :]
+            val_r = np.mean(img_slice)
+            std_r = np.std(img_slice)
             z_val = np.abs(val_r - tis_mean) / tis_std < tis_thr
             z_frac = std_r / tis_std
             if z_frac < anova_low or z_frac > anova_hig:
