@@ -190,31 +190,44 @@ class PredictImgs:
         margin = 50
         # Compute horizontal derivivatives
         xmarg, ymarg = 10,10
+        left_prob, right_prob = False, False
         ysize,xsize=800,800
         tis_mean,tis_std = slideapp.config.tissue_mean, slideapp.config.tissue_std
+        anova_thr = slideapp.config.tissue_anova_thr
+        anova_low,anova_hig=1-anova_thr,1+anova_thr
         tis_thr = slideapp.config.tissue_z_thr
         for y in range(0,H-ysize, ysize):
             val_l = np.mean(slide_img[y:y+ysize,0:xsize, :])
+            std_l = np.std(slide_img[y:y+ysize,0:xsize, :])
             z_val = np.abs(val_l-tis_mean)/tis_std < tis_thr
+            z_frac = std_l/tis_std
+            if z_frac<anova_low or z_frac>anova_hig:
+                z_val = False
             if z_val:
+                left_prob = True
                 slide_img = cv2.rectangle(slide_img, (0, y), (xsize, y + ysize), green,
                                           thickness=thickness)
             val_r = np.mean(slide_img[y:y+ysize,-xsize:, :])
+            std_r = np.std(slide_img[y:y+ysize,-xsize:, :])
             z_val = np.abs(val_r - tis_mean) / tis_std < tis_thr
+            z_frac = std_r / tis_std
+            if z_frac < anova_low or z_frac > anova_hig:
+                z_val = False
             if z_val:
+                righ_prob = True
                 slide_img = cv2.rectangle(slide_img, (W-xsize, y), (W-1, y + ysize), green,
                                           thickness=thickness)
-        left_mean = np.mean(slide_img[ymarg:-ymarg, xmarg:2*xmarg , :])
-        right_mean = np.mean(slide_img[ymarg:-ymarg, -2*xmarg:-xmarg, :])
-        left_diff = np.abs(left_mean - white_mean)/white_std
-        right_diff = np.abs(right_mean-white_mean)/white_std
-        std_thr = 5
-        left_prob = left_diff > std_thr
-        right_prob = right_diff > std_thr
-        if left_prob:
-            slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
-        if right_prob:
-            slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
+        # left_mean = np.mean(slide_img[ymarg:-ymarg, xmarg:2*xmarg , :])
+        # right_mean = np.mean(slide_img[ymarg:-ymarg, -2*xmarg:-xmarg, :])
+        # left_diff = np.abs(left_mean - white_mean)/white_std
+        # right_diff = np.abs(right_mean-white_mean)/white_std
+        # std_thr = 5
+        # left_prob = left_diff > std_thr
+        # right_prob = right_diff > std_thr
+        # if left_prob:
+        #     slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
+        # if right_prob:
+        #     slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
 
         found_margin_problem = left_prob or right_prob
         return slide_img, found_margin_problem

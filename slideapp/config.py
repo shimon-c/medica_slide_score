@@ -21,7 +21,8 @@ white_std = 1.663167324510908
 white_conf = 3
 tissue_mean=201.8
 tissue_std=40.6
-tissue_z_thr = 0.8  # 0.5
+tissue_z_thr = 2  # 0.5
+tissue_anova_thr = 0.5
 
 # work at lab
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
