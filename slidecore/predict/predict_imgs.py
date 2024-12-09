@@ -156,18 +156,19 @@ class PredictImgs:
         bad_p = nones/len(pred_list)
         slide_img = None
         if tiles_list is not None:
-            slide_img,margin_problem = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
+            slide_img,margin_problem,ds_img = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
                                                             tile_h=tile_h, tile_w=tile_w,
                                                             n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
             if margin_problem:
                 bad_p = percentile + 0.1
-        return bad_p>=percentile, slide_img
+        return bad_p>=percentile, slide_img,ds_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
         N = len(tiles_list)
         H = int((tile_h * n_tile_rows )/slideapp.config.slide_img_down_sample + 0.5)
         W = int((tile_w * n_tile_cols )/slideapp.config.slide_img_down_sample + 0.5)
         slide_img = np.zeros((H,W,3), np.uint8)
+        down_sampled_img = None
         white_mean, white_std = slideapp.config.white_mean, slideapp.config.white_std
         tw,th = int(tile_w/slideapp.config.slide_img_down_sample), int(tile_h/slideapp.config.slide_img_down_sample)
         for k in range(N):
@@ -177,6 +178,9 @@ class PredictImgs:
             cur_y,cur_x = row*th, col*tw
             slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
         # Next draw the rectanle
+        if slideapp.config.downsample_slide>0:
+            down_sampled_img = cv2.resize(slide_img, (slideapp.config.downsample_slide, slideapp.config.downsample_slide),
+                                          interpolation=cv2.INTER_LINEAR)
         red = (0,0,255)         # BGR
         green = (0,255,0)
         thickness = 8
@@ -231,7 +235,7 @@ class PredictImgs:
         #     slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
 
         found_margin_problem = left_prob or right_prob
-        return slide_img, found_margin_problem
+        return slide_img, found_margin_problem, down_sampled_img
 
 
 

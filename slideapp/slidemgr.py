@@ -29,6 +29,7 @@ class SlideMgr:
         self.output_dir = output_dir if output_dir is not None else input_dir
         self.write_tiles_into_out_dir = slideapp.config.write_tiles_into_out_dir
         self.tiles_working_dir = slideapp.config.tiles_working_dir
+        self.slide_ds_path = os.path.join(slideapp.config.out_dir, 'downsample_imgs') if slideapp.config.downsample_slide>0 else None
         if self.tiles_working_dir != '':
             os.makedirs(self.tiles_working_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
@@ -101,11 +102,14 @@ class SlideMgr:
         if good_flag is None:
             shutil.rmtree(self.output_dir, ignore_errors=True)
             os.makedirs(self.output_dir, exist_ok=True)
+            if self.slide_ds_path is not None:
+                os.makedirs(self.slide_ds_path, exist_ok=True)
             self.res_file = open(self.res_file_str, "+w")
             good_dir = os.path.join(self.output_dir, 'good_dir')
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
             os.makedirs(bad_dir, exist_ok=True)
+
         for kfn,fn in enumerate(file_names):
             # if a directory was supplied
             dir = self.tiles_working_dir if self.tiles_working_dir != '' else os.path.dirname(fn)
@@ -113,6 +117,7 @@ class SlideMgr:
             logging.info(f'----> Working on slide (tile extractor):{fn}')
             print(f'----> Working on slide (tile extractor):{fn}')
             failed = False
+            ds_img = None
             try:
                 extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
                                                           saveTiles=True, std_filter=0)
@@ -120,7 +125,7 @@ class SlideMgr:
                 outputPath = extractor.tiles_dir
                 base_fn = os.path.basename(fn)
                 out_dir = os.path.join(self.output_dir, base_fn)
-                is_bad,slide_img = pred.predict_from_dir(dir_path=outputPath,
+                is_bad,slide_img,ds_img = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
                                                percentile = slideapp.config.classifer_slide_thr,
                                                write_tiles_flag=self.write_tiles_into_out_dir,
@@ -152,6 +157,10 @@ class SlideMgr:
             # Use to be the full path
             self.res_file.write(f'{basename},\t {sl_res_str}\n')
             self.res_file.flush()
+            if ds_img is not None:
+                basename = os.path.basename(fn)
+                ds_fn = os.path.join(self.slide_ds_path, f'{basename}_ds.jpg')
+                cv2.imwrite(filename=ds_fn, img=ds_img)
             if good_flag is None:
                 # Copy the slide for further process
                 basename = os.path.basename(fn)
