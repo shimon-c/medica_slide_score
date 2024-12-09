@@ -28,12 +28,13 @@ tissue_anova_thr = 0.5
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862.pt"
-#out_dir="/mnt/medica/medica_data/test_folder_out"
+
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
-#input_dir="/home/shimon/hama2/"
+input_dir="/home/shimon/hama2/"
+out_dir="/mnt/medica/medica_data/test_crone_folder_out"
 #For test
 tiles_working_dir="/mnt/medica/medica_data/tiles_dir"
-input_dir="/mnt/medica/medica_data/test_folder_for_train"
-out_dir="/mnt/medica/medica_data/for_test_folder_out"
+# input_dir="/mnt/medica/medica_data/test_folder_for_train"
+# out_dir="/mnt/medica/medica_data/for_test_folder_out"
 downsample_slide=256        # If greater than 0 will generate a down sampled image for training slide classifier
