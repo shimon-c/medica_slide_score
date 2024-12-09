@@ -157,11 +157,11 @@ class SlideMgr:
             # Use to be the full path
             self.res_file.write(f'{basename},\t {sl_res_str}\n')
             self.res_file.flush()
-            if ds_img is not None:
+            if ds_img is not None and not self.write_tiles_into_out_dir:
                 basename = os.path.basename(fn)
                 ds_fn = os.path.join(self.slide_ds_path, f'{basename}_ds.jpg')
                 cv2.imwrite(filename=ds_fn, img=ds_img)
-            if good_flag is None:
+            if good_flag is None and not self.write_tiles_into_out_dir:
                 # Copy the slide for further process
                 basename = os.path.basename(fn)
                 if is_bad:
