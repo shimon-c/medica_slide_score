@@ -11,6 +11,7 @@ import logging
 from datetime import date
 import cv2
 import datetime
+import slideapp.slide_access_time
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
 import smtplib          # to send emails every day
 
@@ -22,6 +23,7 @@ import smtplib          # to send emails every day
 # run command: /mnt/medica/medica_lab_project/medica_slide_score$ python ./slideapp/slidemgr.py
 
 class SlideMgr:
+    LAST_RUN_FNAME = 'last_run.txt'
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
         self.predictor = slidecore.predict.predict_imgs.PredictImgs(model_path=classfier_path,
                                                                     cls_tile_thr=slideapp.config.classifer_tile_thr)
@@ -33,6 +35,10 @@ class SlideMgr:
         if self.tiles_working_dir != '':
             os.makedirs(self.tiles_working_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
+        self.last_run = slideapp.slide_access_time.SlideAccessTime()
+        last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
+        if os.path.exists(last_run_name):
+            self.last_run.set_last_time_from_file(filename=last_run_name)
         log_file = os.path.join(self.output_dir, "slidemgr.log")
         res_file = os.path.join(self.output_dir, "slidemgr_results.txt")
         try:
@@ -87,11 +93,16 @@ class SlideMgr:
     # Work on several slides
     def work_on_slides(self, root_dir: str = None, file_exten='ndpi',good_flag=False):
         pred = self.predictor
-
+        cur_run = slideapp.slide_access_time.SlideAccessTime()
+        cur_run.set_current_time()
+        # update last run
+        last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
+        cur_run.save_current_time(filename=last_run_name)
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
-        # Just for now filter colored slices
+        # Just for now filter colored slices and those which were already scanned
         file_names = self.filter_files(files=file_names)
+        file_names = self.last_run.filter_files(files_list=file_names)
         file_names = list(set(file_names))
         work_list = []
         num_bad = 0
@@ -157,11 +168,7 @@ class SlideMgr:
             # Use to be the full path
             self.res_file.write(f'{basename},\t {sl_res_str}\n')
             self.res_file.flush()
-            if ds_img is not None and not self.write_tiles_into_out_dir:
-                basename = os.path.basename(fn)
-                ds_fn = os.path.join(self.slide_ds_path, f'{basename}_ds.jpg')
-                cv2.imwrite(filename=ds_fn, img=ds_img)
-            if good_flag is None and not self.write_tiles_into_out_dir:
+            if good_flag is None:
                 # Copy the slide for further process
                 basename = os.path.basename(fn)
                 if is_bad:
