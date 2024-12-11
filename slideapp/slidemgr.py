@@ -66,6 +66,7 @@ class SlideMgr:
             print(f'slidemgr date:{hour}, {current_time.day}/{current_time.month}/{current_time.year} \n')
             if prv_date is None or cur_date > prv_date:
                 self.work_on_slides(root_dir=self.input_dir,
+                                    file_exten=slideapp.config.input_file_exten,
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
