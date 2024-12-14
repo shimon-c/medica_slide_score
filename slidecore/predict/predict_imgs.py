@@ -183,7 +183,7 @@ class PredictImgs:
                                           interpolation=cv2.INTER_LINEAR)
         red = (0,0,255)         # BGR
         green = (0,255,0)
-        thickness = 8
+        thickness = 16
         for k in range(N):
             fname,row,col,cid = tiles_list[k]
             if cid > 0:
@@ -272,7 +272,7 @@ def collect_slides(root_dir, file_exten='ndpi',files_list_in=None):
     for dirpath, dirs, files in os.walk(root_dir):
         for filename in files:
             # should be 26
-            if len(filename) < 26:
+            if len(filename) < 26 and file_exten!='dcm':
                 continue
             fname = os.path.join(dirpath, filename)
             if fname.endswith(file_exten):

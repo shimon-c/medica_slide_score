@@ -87,8 +87,9 @@ class SlideMgr:
         for fn in files:
             bfn = os.path.basename(fn)
             filtered_list = bfn.split('-')
-            if len(filtered_list)>3:
-                if filter_str in filtered_list[3]:
+            dcm_flag = bfn.endswith('dcm')
+            if len(filtered_list)>3 or dcm_flag:
+                if dcm_flag or filter_str in filtered_list:
                     ret_files.append(fn)
         return ret_files
 
@@ -99,7 +100,7 @@ class SlideMgr:
         cur_run.set_current_time()
         # update last run
         last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
-        cur_run.save_current_time(filename=last_run_name)
+        #cur_run.save_current_time(filename=last_run_name)
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices and those which were already scanned
@@ -122,6 +123,7 @@ class SlideMgr:
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
             os.makedirs(bad_dir, exist_ok=True)
+            cur_run.save_current_time(filename=last_run_name)
 
         for kfn,fn in enumerate(file_names):
             # if a directory was supplied
@@ -132,7 +134,7 @@ class SlideMgr:
             failed = False
             ds_img = None
             try:
-                if file_exten != '.dcm':
+                if file_exten != 'dcm':
                     extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
                                                               saveTiles=True, std_filter=0)
                 else:
