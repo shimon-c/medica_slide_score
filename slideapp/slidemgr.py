@@ -12,6 +12,7 @@ from datetime import date
 import cv2
 import datetime
 import slideapp.slide_access_time
+import slideapp.dcm_reader
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
 import smtplib          # to send emails every day
 
@@ -131,8 +132,11 @@ class SlideMgr:
             failed = False
             ds_img = None
             try:
-                extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
-                                                          saveTiles=True, std_filter=0)
+                if file_exten != '.dcm':
+                    extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
+                                                              saveTiles=True, std_filter=0)
+                else:
+                    extractor = slideapp.dcm_reader.DicomExtractor(file_path=fn, outputPath=outputPath)
                 extractor.run()
                 outputPath = extractor.tiles_dir
                 base_fn = os.path.basename(fn)

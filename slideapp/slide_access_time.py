@@ -12,6 +12,7 @@ class SlideAccessTime:
     def set_last_time_from_file(self, filename=None):
         with open(filename, "r") as ff:
             data = ff.read()
+            data = data.split(' ')
             data_list = [int(x) for x in data]
             self.current_time = datetime.datetime(year=data_list[0], month=data_list[1],
                                                   day = data_list[2], hour=data_list[3],
