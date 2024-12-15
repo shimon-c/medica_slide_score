@@ -22,6 +22,9 @@ import smtplib          # to send emails every day
 
 # Currently need to perform on windows:  pip install albumentations==1.1.0
 # run command: /mnt/medica/medica_lab_project/medica_slide_score$ python ./slideapp/slidemgr.py
+SEC = 60
+HOUR = SEC * 60
+DAY = HOUR * 24
 
 class SlideMgr:
     LAST_RUN_FNAME = 'last_run.txt'
@@ -57,7 +60,7 @@ class SlideMgr:
             level=logging.DEBUG)
         print(f'log_file: {log_file}')
 
-    def run(self, max_iters=1):
+    def run(self, max_iters=7):
         prv_date = None
         iter = 0
         while True and iter < max_iters:
@@ -71,7 +74,7 @@ class SlideMgr:
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
-            time.sleep(60*2)
+            time.sleep(DAY)
             iter += 1
 
     def collect_dirs(self, input_dir = None):
@@ -184,11 +187,15 @@ class SlideMgr:
                 else:
                     new_fn = os.path.join(good_dir, basename)
                     #new_fn = fn.replace(self.input_dir, good_dir)
-                os.makedirs(os.path.dirname(new_fn), exist_ok=True)
-                shutil.copy(fn, new_fn)
-                new_fn = f'{new_fn}.jpg'
-                if slide_img is not None:
-                    cv2.imwrite(filename=new_fn,img=slide_img)
+                try:
+                    # Catch system errors
+                    os.makedirs(os.path.dirname(new_fn), exist_ok=True)
+                    shutil.copy(fn, new_fn)
+                    new_fn = f'{new_fn}.jpg'
+                    if slide_img is not None:
+                        cv2.imwrite(filename=new_fn,img=slide_img)
+                except Exception as e:
+                    print(f'caught exception: {e}')
             # del extractor
         print(f'work_list:\n{work_list}')
         for tp in work_list:
