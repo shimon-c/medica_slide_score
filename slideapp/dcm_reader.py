@@ -7,6 +7,7 @@ from PIL import Image
 from pydicom.data import get_testdata_file
 import glob
 import cv2
+import pathlib
 # path = r"/home/shimon/Desktop/sectra-9.12.24/bad/ANON6V2ELJ1IK/ANON6V2ELJ1IK_1_4.dcm"
 # ds = dcmread(path)
 # arr = ds.pixel_array
@@ -15,13 +16,20 @@ import cv2
 
 class DicomExtractor:
     def __init__(self, file_path=None, outputPath=None):
-        ds = dcmread(file_path)
-        self.ds = ds
-        self.data = pixel_array(ds)
+        self.file_path = file_path
         self.out_path = outputPath
         self.tiles_dir = None
 
     def run(self):
+        path = pathlib.Path(self.file_path )
+
+        if  path.is_symlink():
+            self.tiles_dir = None
+            return
+        ds = dcmread(self.file_path)
+        self.ds = ds
+        self.data = pixel_array(ds)
+
         out_dir = os.path.join(self.out_path, 'tiles')
         self.tiles_dir = out_dir
         os.makedirs(out_dir, exist_ok=True)

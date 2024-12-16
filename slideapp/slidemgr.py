@@ -13,6 +13,7 @@ import cv2
 import datetime
 import slideapp.slide_access_time
 import slideapp.dcm_reader
+import pathlib
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
 import smtplib          # to send emails every day
 
@@ -142,6 +143,8 @@ class SlideMgr:
                                                               saveTiles=True, std_filter=0)
                 else:
                     extractor = slideapp.dcm_reader.DicomExtractor(file_path=fn, outputPath=outputPath)
+                    if extractor.tiles_dir is None:
+                        continue
                 extractor.run()
                 outputPath = extractor.tiles_dir
                 base_fn = os.path.basename(fn)
@@ -190,7 +193,10 @@ class SlideMgr:
                 try:
                     # Catch system errors
                     os.makedirs(os.path.dirname(new_fn), exist_ok=True)
-                    shutil.copy(fn, new_fn)
+                    path = pathlib.Path(fn)
+
+                    if not path.is_symlink():
+                        shutil.copy(fn, new_fn)
                     new_fn = f'{new_fn}.jpg'
                     if slide_img is not None:
                         cv2.imwrite(filename=new_fn,img=slide_img)

@@ -195,7 +195,7 @@ class PredictImgs:
         # Compute horizontal derivivatives
         xmarg, ymarg = 10,10
         left_prob, right_prob = False, False
-        ysize,xsize=800,800
+        ysize,xsize=400,800
         tis_mean,tis_std = slideapp.config.tissue_mean, slideapp.config.tissue_std
         anova_thr = slideapp.config.tissue_anova_thr
         anova_low,anova_hig=1-anova_thr,1+anova_thr
