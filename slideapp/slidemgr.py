@@ -75,7 +75,10 @@ class SlideMgr:
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
-            time.sleep(DAY)
+            for dd in range(24):
+                time.sleep(HOUR)
+                cur_date = date.today()
+                logging.debug(f'sleep iter:{dd}\t {cur_date}')
             iter += 1
 
     def collect_dirs(self, input_dir = None):
@@ -127,6 +130,7 @@ class SlideMgr:
             bad_dir = os.path.join(self.output_dir, 'bad_dir')
             os.makedirs(good_dir, exist_ok=True)
             os.makedirs(bad_dir, exist_ok=True)
+            os.chmod(bad_dir, 0o755)
             cur_run.save_current_time(filename=last_run_name)
 
         for kfn,fn in enumerate(file_names):
@@ -194,9 +198,9 @@ class SlideMgr:
                     # Catch system errors
                     os.makedirs(os.path.dirname(new_fn), exist_ok=True)
                     path = pathlib.Path(fn)
-
-                    if not path.is_symlink():
-                        shutil.copy(fn, new_fn)
+                    # Without ndpi files
+                    # if not path.is_symlink():
+                    #     shutil.copy(fn, new_fn)
                     new_fn = f'{new_fn}.jpg'
                     if slide_img is not None:
                         cv2.imwrite(filename=new_fn,img=slide_img)
