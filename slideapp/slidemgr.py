@@ -78,6 +78,8 @@ class SlideMgr:
             for dd in range(24):
                 time.sleep(HOUR)
                 cur_date = date.today()
+                dbg_str = f'sleep iter:{dd}\t {cur_date}'
+                print(dbg_str)
                 logging.debug(f'sleep iter:{dd}\t {cur_date}')
             iter += 1
 
