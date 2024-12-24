@@ -1,7 +1,7 @@
 # https://github.com/pydicom/pydicom
 # pip install pydicom
 import os
-
+import pydicom
 from pydicom import dcmread, pixel_array
 from PIL import Image
 from pydicom.data import get_testdata_file
@@ -13,6 +13,38 @@ import pathlib
 # arr = ds.pixel_array
 # arr1 = pixel_array(ds)
 # type(ds.PixelData)
+
+# Function to read DICOM tiles and stitch them together
+def stitch_tiles(tile_paths, output_path):
+    images = []
+    for tile_path in tile_paths:
+        try:
+            ds = pydicom.dcmread(tile_path)
+            image = ds.pixel_array
+            images.append(image)
+        except Exception as e:
+            print(f'Error reading: {tile_path}: {e}')
+
+    # Combine images into a single slide
+    stitched_image = cv2.vconcat([cv2.hconcat(images[:2]), cv2.hconcat(images[2:4])])
+
+    # Save the stitched image
+    cv2.imwrite(output_path, stitched_image)
+    print(f"Stitched image saved to {output_path}")
+
+# Paths to your DICOM tiles
+def get_dicoms_files(dir):
+    dir_name = os.path.join(dir,"*dcm")
+    file_names = glob.glob(dir_name)
+    return file_names
+
+# Stitch the tiles
+test_stitch = False
+if test_stitch:
+    tile_paths = get_dicoms_files('/home/shimon/Desktop/sectra-9.12.24/bad/ANON6V2ELJ1IK')
+    output_path = 'path/to/save/your/slide_image.png'
+
+    stitch_tiles(tile_paths, output_path)
 
 class DicomExtractor:
     def __init__(self, file_path=None, outputPath=None):

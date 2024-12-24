@@ -109,6 +109,9 @@ class SlideMgr:
         cur_run.set_current_time()
         # update last run
         last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
+        if os.path.exists(last_run_name):
+            self.last_run.set_last_time_from_file(filename=last_run_name)
+
         #cur_run.save_current_time(filename=last_run_name)
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
