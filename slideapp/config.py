@@ -28,7 +28,9 @@ tissue_anova_thr = 0.2
 model_path="/mnt/medica/medica_classifier/resnet_epoch_17_0.924198.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"
 # Next row best model so far
-model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862.pt"
+model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862_v1.0.pt"
+model_path="/mnt/medica/medica_classifier/resnet_epoch_214_98.3399_v1.1.pt"
+model_path="/mnt/medica/medica_classifier/resnet_epoch_419_99.49_v1.1.pt"
 
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
@@ -36,6 +38,7 @@ input_file_exten='ndpi'         # "dcm" or "ndpi"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24/bad"
 input_dir="/home/shimon/hama2/"
 out_dir="/mnt/medica/medica_data/test_crone_folder_out"
+out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
 # input_dir="/mnt/medica/medica_data/to_debug"
 # out_dir="/mnt/medica/medica_data/debug_out"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24"
@@ -45,3 +48,4 @@ tiles_working_dir="/mnt/medica/medica_data/tiles_dir"
 # input_dir="/mnt/medica/medica_data/test_folder_for_train"
 # out_dir="/mnt/medica/medica_data/for_test_folder_out"
 downsample_slide=256        # If greater than 0 will generate a down sampled image for training slide classifier
+work_list=[7]

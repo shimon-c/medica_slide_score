@@ -101,7 +101,10 @@ def train(args, log_obj=None):
                                               not_rel=not_rel, xsize=xsize, ysize=ysize,
                                               augmentations=args['augmentations'],
                                               train_csv_file=args['train_csv_file'])
-    log_obj.info(f'----Train stat -----\n{train_ds.dataset_stat_str}\nds-size:{len(train_ds)}\n--------\n')
+    dataset_str = f'----Train stat -----\n{train_ds.dataset_stat_str}\nds-size:{len(train_ds)}\n--------\n'
+    print(dataset_str)
+    log_obj.info(dataset_str)
+    log_obj.info(train_ds.dataset_stat_str)
     max_std = train_ds.max_std
     num_cls = train_ds.get_num_of_classes()
     args['out_cls'] = num_cls

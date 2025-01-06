@@ -70,12 +70,19 @@ class SlideMgr:
             hour = current_time.hour
             print(f'slidemgr date:{hour}, {current_time.day}/{current_time.month}/{current_time.year} \n')
             if prv_date is None or cur_date > prv_date:
+                print(f'hour:{hour} ---> running')
                 self.work_on_slides(root_dir=self.input_dir,
                                     file_exten=slideapp.config.input_file_exten,
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
             for dd in range(24):
+                current_time = datetime.datetime.now()
+                hour = current_time.hour
+                if hour in slideapp.config.work_list:
+                    self.work_on_slides(root_dir=self.input_dir,
+                                        file_exten=slideapp.config.input_file_exten,
+                                        good_flag=None)
                 time.sleep(HOUR)
                 cur_date = date.today()
                 dbg_str = f'sleep iter:{dd}\t {cur_date}'

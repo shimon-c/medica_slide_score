@@ -115,8 +115,13 @@ class DataSet(TorchDataset):
         self.clear_low_std_imgs()
         # Compute number of classes
         self.cls_num = 0
+        self.bad_images, self.good_images=[],[]
         for tp in self.all_imgs:
             self.cls_num = max(self.cls_num, tp[1])
+            if tp[1]>0:
+                self.bad_images.append(tp[0])
+            else:
+                self.good_images.append(tp[0])
         self.cls_num += 1
         self.dataset_stat_str = f'bad_imgs:{len(self.bad_images)}, good_imgs:{len(self.good_images)}, not_rel:{len(self.not_rel_images)}'
         print(self.dataset_stat_str)
@@ -187,7 +192,7 @@ class DataSet(TorchDataset):
 
         return img_ten,lab
 
-    def clear_low_std_imgs(self, min_std=10):
+    def clear_low_std_imgs(self, min_std=5.47):
         imgs = []
         self.max_std = 0
         L = len(self.all_imgs)

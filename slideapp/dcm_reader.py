@@ -14,6 +14,33 @@ import pathlib
 # arr1 = pixel_array(ds)
 # type(ds.PixelData)
 
+import SimpleITK as sitk
+import numpy as np
+import matplotlib.pyplot as plt
+
+dicom_path = 'path/to/tile1.dcm'
+
+def read_sitk(imgs_list):
+    images = []
+    k  = 0
+    for img_p in imgs_list:
+        k += 1
+        if k>=3:
+            break
+        try:
+            image = sitk.ReadImage(img_p)
+            array = sitk.GetArrayFromImage(image)
+            print("Successfully accessed pixel array with SimpleITK. Shape:", array.shape)
+            images.append(array)
+            plt.imshow(array[0], cmap='gray')
+            plt.show()
+        except Exception as e:
+            print(f"Error accessing pixel array with SimpleITK: {e}, {img_p}")
+    stitched_image = cv2.vconcat([cv2.hconcat(images[:2]), cv2.hconcat(images[2:4])])
+    plt.imshow(stitched_image, cmap='gray')
+    plt.show()
+
+
 # Function to read DICOM tiles and stitch them together
 def stitch_tiles(tile_paths, output_path):
     images = []
@@ -43,7 +70,7 @@ test_stitch = False
 if test_stitch:
     tile_paths = get_dicoms_files('/home/shimon/Desktop/sectra-9.12.24/bad/ANON6V2ELJ1IK')
     output_path = 'path/to/save/your/slide_image.png'
-
+    read_sitk(tile_paths)
     stitch_tiles(tile_paths, output_path)
 
 class DicomExtractor:

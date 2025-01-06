@@ -23,11 +23,15 @@ def merge_list(csv_file_names=None):
             df1 = pd.read_csv(csv)
             df = pd.concat([df,df1])
     dir = os.path.dirname(csv_file_names)
+    df1 = df[["file_name", "class"]]
+    df = df1
     return df,dir
+ #example --file_name="/mnt/medica/medica_data/medica_train_combind.txt"
 
 if __name__ == '__main__':
     args = get_args()
     df,dir = merge_list(args.file_name)
     csv_name = os.path.join(dir,'merged_train.csv')
     df.to_csv(csv_name)
+    print(f'csv:{csv_name}')
 

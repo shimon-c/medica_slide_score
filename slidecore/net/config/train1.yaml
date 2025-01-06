@@ -53,7 +53,7 @@ test_good: 'GoodFocus'
 test_bad: 'BadFocus'
 end_str: '.jpeg'
 
-nepochs: 220
+nepochs: 420
 num_workers: 4
 
 augmentations: [RandomScale, GaussNoise, Blur, OpticalDistortion, Flip]
