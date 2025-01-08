@@ -83,6 +83,7 @@ class SlideMgr:
                     self.work_on_slides(root_dir=self.input_dir,
                                         file_exten=slideapp.config.input_file_exten,
                                         good_flag=None)
+                    print(f'Worked time: {hour}:{current_time.minute}')
                 time.sleep(HOUR)
                 cur_date = date.today()
                 dbg_str = f'sleep iter:{dd}\t {cur_date}'
