@@ -24,7 +24,7 @@ class PredictImgs:
     def __init__(self, model_path=None, gpu=0,
                  ensemble_flag=False, inference_size=0,
                  cls_tile_thr=-1):
-        if ensemble_flag:
+        if ensemble_flag or 'ensemble' in model_path:
             self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
             self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)

@@ -31,6 +31,7 @@ model_path="/mnt/medica/medica_classifier/resnet_epoch_59.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862_v1.0.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_214_98.3399_v1.1.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_419_99.49_v1.1.pt"
+model_path="/mnt/medica/medica_classifier/ensemble_model/ensemble_v1.1.pt"
 
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
