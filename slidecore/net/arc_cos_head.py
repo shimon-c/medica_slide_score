@@ -26,7 +26,7 @@ class ArcCosHead(torch.nn.Module):
         std_frac = 2.
         stdv = math.sqrt(std_frac/in_sz)
         self.lin.data.uniform_(-stdv, stdv)
-        print(f'arc-cos: margin:{self.margin}, rad:{self.rad}')
+        print(f'ArcCosHead arc-cos: margin:{self.margin}, rad:{self.rad}')
 
         
     def forward(self, X, target=None):

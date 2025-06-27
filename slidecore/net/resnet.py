@@ -106,7 +106,7 @@ class SimpleHead(nn.Module):
         ch = in_feature
         head_arch = args['head_arch']
         out_cls = args['out_cls']
-
+        print('SimpleHead')
         self.head,un = slidecore.net.create_head_utils.create_head(arch=head_arch, in_feats=in_feature)
         self.lin = nn.Linear(in_features=un, out_features=out_cls)
 

@@ -105,14 +105,17 @@ class PredictImgs:
             file_names=PredictImgs.collect_files(dir_path, file_exten='jpg')
         else:
             file_names = [res[0] for res in tiles_list]
+            dir_path=os.path.basename(file_names[0])
         if len(file_names) <=0:
             return False
         bad_dir,good_dir=None,None
         if write_tiles_flag:
             cur_dir = os.path.dirname(file_names[0]) if out_dir is None else out_dir
-            shutil.rmtree(cur_dir,ignore_errors=True)
+            #shutil.rmtree(cur_dir,ignore_errors=True)
             bad_dir = os.path.join(cur_dir, 'bad_dir')
             good_dir = os.path.join(cur_dir, 'good_dir')
+            shutil.rmtree(bad_dir, ignore_errors=True)
+            shutil.rmtree(good_dir, ignore_errors=True)
             os.makedirs(bad_dir, exist_ok=True)
             os.makedirs(good_dir, exist_ok=True)
         self.num_bad = 0
@@ -142,8 +145,9 @@ class PredictImgs:
                 if tiles_list is not None:
                     k_id = k + kk
                     cur_res = tiles_list[k_id]
-                    cur_res = cur_res + (cid,)
-                    tiles_list[k_id] = cur_res
+                    cur_res = list(cur_res)
+                    cur_res[-1] = cid
+                    tiles_list[k_id] = tuple(cur_res)
                 ret_tiles_list.append((file_names[k+kk], cid))
                 if write_tiles_flag:
                     img_name = os.path.basename(file_names[k+kk])
@@ -161,7 +165,13 @@ class PredictImgs:
                                                             n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
             if margin_problem:
                 bad_p = percentile + 0.1
-        return bad_p>=percentile, slide_img,ds_img
+        defect_flag = bad_p>=percentile
+        cur_dir = bad_dir if defect_flag else good_dir
+        file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
+        ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
+        cv2.imwrite(file_slide_name,slide_img)
+        cv2.imwrite(ds_slide_name, ds_img)
+        return defect_flag, slide_img,ds_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
         N = len(tiles_list)
@@ -178,9 +188,7 @@ class PredictImgs:
             cur_y,cur_x = row*th, col*tw
             slide_img[cur_y:cur_y+th, cur_x:cur_x+tw, :] = img_ds[0:cur_y+th, 0:cur_x+tw, :]
         # Next draw the rectanle
-        if slideapp.config.downsample_slide>0:
-            down_sampled_img = cv2.resize(slide_img, (slideapp.config.downsample_slide, slideapp.config.downsample_slide),
-                                          interpolation=cv2.INTER_LINEAR)
+
         red = (0,0,255)         # BGR
         green = (0,255,0)
         thickness = 16
@@ -233,7 +241,9 @@ class PredictImgs:
         #     slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
         # if right_prob:
         #     slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
-
+        if slideapp.config.downsample_slide>0:
+            down_sampled_img = cv2.resize(slide_img, (slideapp.config.downsample_slide, slideapp.config.downsample_slide),
+                                          interpolation=cv2.INTER_LINEAR)
         found_margin_problem = left_prob or right_prob
         return slide_img, found_margin_problem, down_sampled_img
 
@@ -272,8 +282,8 @@ def collect_slides(root_dir, file_exten='ndpi',files_list_in=None):
     for dirpath, dirs, files in os.walk(root_dir):
         for filename in files:
             # should be 26
-            if len(filename) < 26 and file_exten!='dcm':
-                continue
+            # if len(filename) < 26 and file_exten!='dcm':
+            #     continue
             fname = os.path.join(dirpath, filename)
             if fname.endswith(file_exten):
                 files_list.append(fname)
@@ -293,7 +303,8 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
         extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
         extractor.run()
         outputPath = extractor.tiles_dir
-        pred.predict_from_dir(outputPath)
+        pred.predict_from_dir(outputPath,tiles_list=extractor.tiles_list,
+                              n_tile_cols=extractor.cols, n_tile_rows=extractor.rows)
         work_list.append(outputPath)
         #del extractor
     print(f'work_list:\n{work_list}')

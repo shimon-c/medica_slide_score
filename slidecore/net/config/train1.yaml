@@ -9,16 +9,16 @@ batch_size: 32
 #arch: [[64,3], [128,4], [256,6],[512,3]]
 #arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
 arch: [[6,3],[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
-arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
-arch: [[6,3], [6,3], [12,3], [32,3], [128,3], [128,3]]
-arch: [[16,3], [32,3], [64,3], [128,3], [128,3]]
+#arch: [[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
+#arch: [[6,3], [6,3], [12,3], [32,3], [128,3], [128,3]]
+#arch: [[16,3], [32,3], [64,3], [128,3], [128,3]]
 head_arch: [3000, 3000]
 head_arch: [2048, 2048, 1024]
 #head_arch: [2048, 2048]
 resnet50: True
 shortcut2: False
 arc_cos_rad: -32
-arc_cos_margin: 0.001
+arc_cos_margin: 0.1
 gpu: 0
 in_ch: 3
 out_cls: 3 # 3
@@ -36,14 +36,15 @@ lr: 0.01
 
 sched: "cosine"
 desc: 'New test'
-checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
 ##### Data set Params   #############
 #train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\train_set'
 train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set'
-train_csv_file: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\good_bad_train_shimon.cohen.csv'
-train_csv_file: '/mnt/medica/medica_data/merged_train.csv'
-test_csv_file: '/mnt/medica/medica_data/merged_train.csv'
-checkpoints_dir: '/mnt/medica/checkpoints'
+#train_csv_file: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\good_bad_train_shimon.cohen.csv'
+#train_csv_file: '/mnt/medica/medica_data/merged_train.csv'checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
+#test_csv_file: '/mnt/medica/medica_data/merged_train.csv'
+train_csv_file: ""
+test_csv_file: ""
+#checkpoints_dir: '/mnt/medica/checkpoints'
 #test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set'
 test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
 train_good: 'GoodFocus'
