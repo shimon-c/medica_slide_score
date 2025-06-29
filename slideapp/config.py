@@ -6,7 +6,8 @@ good_dir=r""
 out_dir=r"D:\medica_output"
 classifer_tile_thr=0.4 # 0.4  #0.4           # 0.5
 classifer_slide_thr=0.001                #  0.3
-slide_img_down_sample=2
+slide_img_down_sample=4 #2
+max_working_days = 1    # How many days to work
 tile_std_thr=30
 write_tiles_into_out_dir = False         # For train purposes
 bad_dir = r"E:\medica_data\ReScan_bad"
@@ -21,7 +22,7 @@ white_std = 1.663167324510908
 white_conf = 3
 tissue_mean=201.8
 tissue_std=40.6
-tissue_z_thr = 2  # 0.5
+tissue_z_thr = 0.5  # 0.5
 tissue_anova_thr = 0.2
 
 # work at lab
@@ -39,7 +40,7 @@ input_file_exten='ndpi'         # "dcm" or "ndpi"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24/bad"
 input_dir="/home/shimon/hama2/"
 out_dir="/mnt/medica/medica_data/test_crone_folder_out"
-out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
+#out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
 # input_dir="/mnt/medica/medica_data/to_debug"
 # out_dir="/mnt/medica/medica_data/debug_out"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24"
