@@ -169,6 +169,7 @@ class PredictImgs:
         cur_dir = bad_dir if defect_flag else good_dir
         file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
         ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
+        print(f'attemp writing:{file_slide_name}')
         cv2.imwrite(file_slide_name,slide_img)
         cv2.imwrite(ds_slide_name, ds_img)
         return defect_flag, slide_img,ds_img
@@ -245,6 +246,7 @@ class PredictImgs:
             down_sampled_img = cv2.resize(slide_img, (slideapp.config.downsample_slide, slideapp.config.downsample_slide),
                                           interpolation=cv2.INTER_LINEAR)
         found_margin_problem = left_prob or right_prob
+        print(f'generated images:{slide_img.shape}, {down_sampled_img.shape}')
         return slide_img, found_margin_problem, down_sampled_img
 
 

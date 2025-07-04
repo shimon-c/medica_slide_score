@@ -2,7 +2,7 @@
 # pip install pydicom
 import os
 import pydicom
-from pydicom import dcmread, pixel_array
+from pydicom import dcmread #, pixel_array
 from PIL import Image
 from pydicom.data import get_testdata_file
 import glob
