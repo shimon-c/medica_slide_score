@@ -158,7 +158,7 @@ class PredictImgs:
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
-        slide_img = None
+        slide_img,ds_img = None, None
         if tiles_list is not None:
             slide_img,margin_problem,ds_img = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
                                                             tile_h=tile_h, tile_w=tile_w,
@@ -167,11 +167,12 @@ class PredictImgs:
                 bad_p = percentile + 0.1
         defect_flag = bad_p>=percentile
         cur_dir = bad_dir if defect_flag else good_dir
-        file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
-        ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
-        print(f'attemp writing:{file_slide_name}')
-        cv2.imwrite(file_slide_name,slide_img)
-        cv2.imwrite(ds_slide_name, ds_img)
+        if cur_dir is not None:
+            file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
+            ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
+            print(f'attemp writing:{file_slide_name}')
+            cv2.imwrite(file_slide_name,slide_img)
+            cv2.imwrite(ds_slide_name, ds_img)
         return defect_flag, slide_img,ds_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):

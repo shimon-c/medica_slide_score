@@ -9,7 +9,7 @@ classifer_slide_thr=0.001                #  0.3
 slide_img_down_sample=16 #2,4
 max_working_days = 1    # How many days to work
 tile_std_thr=30
-write_tiles_into_out_dir = False         # For train purposes
+write_tiles_into_out_dir = True         # For train purposes
 bad_dir = r"E:\medica_data\ReScan_bad"
 good_dir=r"E:\medica_data\ReScan_God"
 # The root point at which results will be written to
