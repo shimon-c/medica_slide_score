@@ -76,6 +76,7 @@ class SlideMgr:
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
+            return      # just for now
             for dd in range(24):
                 current_time = datetime.datetime.now()
                 hour = current_time.hour
@@ -261,7 +262,8 @@ if __name__ == "__main__":
                       output_dir=slideapp.config.out_dir)
     # Check if run mode (not test)
     if slideapp.config.run_flag:
-        sm_app.run()
+        print(f'max_working_day:{slideapp.config.max_working_days}')
+        sm_app.run(max_iters=slideapp.config.max_working_days)
         sys.exit(0)
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)

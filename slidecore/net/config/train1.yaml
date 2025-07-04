@@ -19,6 +19,7 @@ resnet50: True
 shortcut2: False
 arc_cos_rad: 32     # to arcocs training
 arc_cos_margin: 0.1
+clip_grad_val: 0.7
 gpu: 0
 in_ch: 3
 out_cls: 3 # 3
@@ -46,6 +47,7 @@ train_csv_file: ""
 test_csv_file: ""
 #checkpoints_dir: '/mnt/medica/checkpoints'
 checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
+checkpoints_dir: 'E:\medica\checkpoints'
 #test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set'
 test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
 train_good: 'GoodFocus'

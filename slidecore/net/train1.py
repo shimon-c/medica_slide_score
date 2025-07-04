@@ -128,7 +128,7 @@ def train(args, log_obj=None):
     else:
         optim = torch.optim.SGD(params=resnet.parameters(), lr=lr, momentum=0.9, nesterov=True,
                                 weight_decay=weight_decay)
-    print(f'optim:{type(optim)}')
+    print(f'optim:{type(optim)}, clip_grad_val: {args["clip_grad_val"]}')
     sched_str = args.get('sched')
     if args.get('sched'):
         sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=nepochs, eta_min=0, last_epoch=-1, verbose='deprecated')
@@ -146,13 +146,14 @@ def train(args, log_obj=None):
         save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
         #test_net(save_name, loader=test_ld)
         sched.step()
-        log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()}"
+        log_str = f"epoch:{ep}, train_loss:{train_loss},train_acc:{tr_acc}, test_acc:{test_acc}, lr:{sched.get_last_lr()},checkpoints:{checkpoint_dir}"
         print(log_str)
         log_obj.info(log_str)
     test_acc, cmat = compute_acc(net=resnet, loader=test_ld, calc_conf_mat=True, device=device)
     model_path = os.path.join(checkpoint_dir, 'resnet.pt')
     resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
     print(f'Final accuracy:{test_acc}, conf_mat:\n{cmat}\nmodel:{model_path}')
+    print(f'checkpoints:{checkpoint_dir}')
     dmat = sklearn.metrics.ConfusionMatrixDisplay(cmat)
     dmat.plot()
     plt.show()
