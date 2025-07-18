@@ -165,14 +165,15 @@ class PredictImgs:
                                                             n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
             if margin_problem:
                 bad_p = percentile + 0.1
-        defect_flag = bad_p>=percentile
+        defect_flag = bad_p>=percentile or margin_problem
         cur_dir = bad_dir if defect_flag else good_dir
         if cur_dir is not None:
-            file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
-            ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
-            print(f'attemp writing:{file_slide_name}')
-            cv2.imwrite(file_slide_name,slide_img)
-            cv2.imwrite(ds_slide_name, ds_img)
+            pass
+            # file_slide_name = os.path.join(cur_dir, 'full_slide.jpg')
+            # ds_slide_name = os.path.join(cur_dir, 'ds_slide.jpg')
+            # print(f'attemp writing:{file_slide_name}')
+            # cv2.imwrite(file_slide_name,slide_img)
+            # cv2.imwrite(ds_slide_name, ds_img)
         return defect_flag, slide_img,ds_img
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
@@ -193,7 +194,7 @@ class PredictImgs:
 
         red = (0,0,255)         # BGR
         green = (0,255,0)
-        thickness = 16
+        thickness = 2
         for k in range(N):
             fname,row,col,cid = tiles_list[k]
             if cid > 0:

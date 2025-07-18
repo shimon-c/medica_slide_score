@@ -216,9 +216,14 @@ class SlideMgr:
                     # Without ndpi files
                     # if not path.is_symlink():
                     #     shutil.copy(fn, new_fn)
+                    ds_file_name = f'{new_fn}_DS.jpg'
                     new_fn = f'{new_fn}.jpg'
                     if slide_img is not None:
                         cv2.imwrite(filename=new_fn,img=slide_img)
+                        cv2.imwrite(filename=ds_file_name, img=ds_img)
+                        print(f'----> wrote: {new_fn}\n {ds_file_name}')
+                        del slide_img
+                        del ds_img
                 except Exception as e:
                     print(f'caught exception: {e}')
             # del extractor
