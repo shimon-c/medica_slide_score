@@ -109,11 +109,12 @@ class PredictImgs:
         if len(file_names) <=0:
             return False
         bad_dir,good_dir=None,None
+        cur_dir = os.path.dirname(file_names[0]) if out_dir is None else out_dir
+        bad_dir = os.path.join(cur_dir, 'bad_dir')
+        good_dir = os.path.join(cur_dir, 'good_dir')
+
         if write_tiles_flag:
-            cur_dir = os.path.dirname(file_names[0]) if out_dir is None else out_dir
             #shutil.rmtree(cur_dir,ignore_errors=True)
-            bad_dir = os.path.join(cur_dir, 'bad_dir')
-            good_dir = os.path.join(cur_dir, 'good_dir')
             shutil.rmtree(bad_dir, ignore_errors=True)
             shutil.rmtree(good_dir, ignore_errors=True)
             os.makedirs(bad_dir, exist_ok=True)
@@ -139,7 +140,7 @@ class PredictImgs:
                 if self.cls_tile_thr > 0: #and cid!= 1:
                     cid = 1 if pr_bad >= self.cls_tile_thr else 0
                 cur_var = np.var(img_list[kk])
-                if cur_var<=slideapp.config.tile_std_thr:
+                if cur_var<=slidecore.slideapp.config.tile_std_thr:
                     cid = 0
                 pred_list.append(cid)
                 if tiles_list is not None:
@@ -176,12 +177,12 @@ class PredictImgs:
 
     def create_slide_img(self,pred_arr=None, tiles_list=None, tile_h=0, tile_w=0, n_tile_rows=0, n_tile_cols=0):
         N = len(tiles_list)
-        H = int((tile_h * n_tile_rows )/slideapp.config.slide_img_down_sample + 0.5)
-        W = int((tile_w * n_tile_cols )/slideapp.config.slide_img_down_sample + 0.5)
+        H = int((tile_h * n_tile_rows )/slidecore.slideapp.config.slide_img_down_sample + 0.5)
+        W = int((tile_w * n_tile_cols )/slidecore.slideapp.config.slide_img_down_sample + 0.5)
         slide_img = np.zeros((H,W,3), np.uint8)
         down_sampled_img = None
-        white_mean, white_std = slideapp.config.white_mean, slideapp.config.white_std
-        tw,th = int(tile_w/slideapp.config.slide_img_down_sample), int(tile_h/slideapp.config.slide_img_down_sample)
+        white_mean, white_std = slidecore.slideapp.config.white_mean,slidecore.slideapp.config.white_std
+        tw,th = int(tile_w/slidecore.slideapp.config.slide_img_down_sample), int(tile_h/slidecore.slideapp.config.slide_img_down_sample)
         for k in range(N):
             fname,row,col,cid = tiles_list[k]
             img = cv2.imread(fname)
@@ -205,10 +206,10 @@ class PredictImgs:
         xmarg, ymarg = 10,10
         left_prob, right_prob = False, False
         ysize,xsize=400,800
-        tis_mean,tis_std = slideapp.config.tissue_mean, slideapp.config.tissue_std
-        anova_thr = slideapp.config.tissue_anova_thr
+        tis_mean,tis_std =slidecore.slideapp.config.tissue_mean,slidecore.slideapp.config.tissue_std
+        anova_thr =slidecore.slideapp.config.tissue_anova_thr
         anova_low,anova_hig=1-anova_thr,1+anova_thr
-        tis_thr = slideapp.config.tissue_z_thr
+        tis_thr =slidecore.slideapp.config.tissue_z_thr
         for y in range(0,H-ysize, ysize):
             val_l = np.mean(slide_img[y:y+ysize,0:xsize, :])
             std_l = np.std(slide_img[y:y+ysize,0:xsize, :])
@@ -242,8 +243,8 @@ class PredictImgs:
         #     slide_img = cv2.rectangle(slide_img, (0, 0), (margin, H-1), green, thickness=thickness)
         # if right_prob:
         #     slide_img = cv2.rectangle(slide_img, (W-margin, 0), (W-1, H - 1), green, thickness=thickness)
-        if slideapp.config.downsample_slide>0:
-            down_sampled_img = cv2.resize(slide_img, (slideapp.config.downsample_slide, slideapp.config.downsample_slide),
+        if slidecore.slideapp.config.downsample_slide>0:
+            down_sampled_img = cv2.resize(slide_img, (slidecore.slideapp.config.downsample_slide,slidecore.slideapp.config.downsample_slide),
                                           interpolation=cv2.INTER_LINEAR)
         found_margin_problem = left_prob or right_prob
         print(f'generated images:{slide_img.shape}, {down_sampled_img.shape}')
@@ -302,7 +303,7 @@ def work_on_slides(pred:PredictImgs=None, root_dir:str=None, file_exten='ndpi'):
     for fn in file_names:
         dir = os.path.dirname(fn)
         outputPath = os.path.join(dir, 'tiles')
-        extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
+        extractor = slidecore.utils.extractor.TileExtractor(slide=fn, outputPath=outputPath, saveTiles=True)
         extractor.run()
         outputPath = extractor.tiles_dir
         pred.predict_from_dir(outputPath,tiles_list=extractor.tiles_list,

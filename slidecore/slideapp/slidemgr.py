@@ -13,7 +13,7 @@ from datetime import date
 import cv2
 import datetime
 
-#import slideapp.dcm_reader
+#import slidecore.slideapp.dcm_reader
 import pathlib
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
 import smtplib          # to send emails every day
@@ -45,7 +45,7 @@ class SlideMgr:
         last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
         if os.path.exists(last_run_name):
             self.last_run.set_last_time_from_file(filename=last_run_name)
-        log_file = os.path.join(self.output_dir, "slidemgr.log")
+        log_file = os.path.join(slidecore.slideapp.config.log_dir, "slidemgr.log")
         res_file = os.path.join(self.output_dir, "slidemgr_results.txt")
         try:
             os.remove(res_file)
@@ -53,13 +53,12 @@ class SlideMgr:
             print(f'Caught: {e}')
         self.res_file_str = res_file
         self.res_file = open(self.res_file_str, "+w")
-        try:
-            os.remove(log_file)
-        except Exception as e:
-            print(f'Failed to remove log msg: {e}')
-        logging.basicConfig(
-            filename=log_file,
-            level=logging.DEBUG)
+        # try:
+        #     os.remove(log_file)
+        # except Exception as e:
+        #     print(f'Failed to remove log msg: {e}')
+        logging.basicConfig(filename=log_file,
+                            level=logging.DEBUG)
         print(f'log_file: {log_file}')
 
     def run(self, max_iters=7):
@@ -126,7 +125,7 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices and those which were already scanned
-        file_names = self.filter_files(files=file_names)
+      #  file_names = self.filter_files(files=file_names)
         #file_names = self.last_run.filter_files(files_list=file_names)
         file_names = list(set(file_names))
         print(f'working on: {len(file_names)} files')
@@ -159,8 +158,8 @@ class SlideMgr:
             ds_img = None
             try:
                 if file_exten != 'dcm':
-                    extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
-                                                              saveTiles=True, std_filter=0)
+                    extractor = slidecore.utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
+                                                                        saveTiles=True, std_filter=0)
                 else:
                     extractor = slidecore.slideapp.dcm_reader.DicomExtractor(file_path=fn, outputPath=outputPath)
                     if extractor.tiles_dir is None:
@@ -179,6 +178,7 @@ class SlideMgr:
 
 
             except Exception as e:
+                print(f"Exception - {e}")
                 fn = file_names[kfn]
                 logging.error(f'******* Failed on slide:{fn}')
                 print(f'******* Failed on slide:{fn}')

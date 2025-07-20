@@ -4,12 +4,14 @@ classifer_slide_thr=0.001                #  0.3
 slide_img_down_sample=16 #2,4
 max_working_days = 1    # How many days to work
 tile_std_thr=30
-write_tiles_into_out_dir = False         # For train purposes
+write_tiles_into_out_dir = True         # For train purposes
 bad_dir = r"/home/dudi/dev/patology/slidecore/output/ReScan_bad"
 good_dir=r"/home/dudi/dev/patology/slidecore/output/ReScan_Good"
 # The root point at which results will be written to
 input_dir=bad_dir
+# out_dir is deleted by shimon on run
 out_dir=r"/home/dudi/dev/patology/slidecore/output/results"
+log_dir=r"/home/dudi/dev/patology/slidecore/output"
 tiles_working_dir=r"/home/dudi/dev/patology/slidecore/output/tiles_dir"
 run_flag = True     # Run mode
 white_mean = 235.79956452889942
