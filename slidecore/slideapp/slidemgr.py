@@ -1,17 +1,18 @@
 import sys
 
+import slidecore.slideapp.slide_access_time
 import slidecore.predict.predict_imgs
 from slidecore.predict.predict_imgs import PredictImgs as PredictImgs
 import os
-import utils
-import slideapp.config
+import slidecore.utils
+import slidecore.slideapp.config
 import shutil
 import time
 import logging
 from datetime import date
 import cv2
 import datetime
-import slideapp.slide_access_time
+
 #import slideapp.dcm_reader
 import pathlib
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
@@ -31,16 +32,16 @@ class SlideMgr:
     LAST_RUN_FNAME = 'last_run.txt'
     def __init__(self,input_dir:str=None, output_dir:str=None, classfier_path:str=None):
         self.predictor = slidecore.predict.predict_imgs.PredictImgs(model_path=classfier_path,
-                                                                    cls_tile_thr=slideapp.config.classifer_tile_thr)
+                                                                    cls_tile_thr=slidecore.slideapp.config.classifer_tile_thr)
         self.input_dir = input_dir
         self.output_dir = output_dir if output_dir is not None else input_dir
-        self.write_tiles_into_out_dir = slideapp.config.write_tiles_into_out_dir
-        self.tiles_working_dir = slideapp.config.tiles_working_dir
-        self.slide_ds_path = os.path.join(slideapp.config.out_dir, 'downsample_imgs') if slideapp.config.downsample_slide>0 else None
+        self.write_tiles_into_out_dir = slidecore.slideapp.config.write_tiles_into_out_dir
+        self.tiles_working_dir = slidecore.slideapp.config.tiles_working_dir
+        self.slide_ds_path = os.path.join(slidecore.slideapp.config.out_dir, 'downsample_imgs') if slidecore.slideapp.config.downsample_slide>0 else None
         if self.tiles_working_dir != '':
             os.makedirs(self.tiles_working_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
-        self.last_run = slideapp.slide_access_time.SlideAccessTime()
+        self.last_run = slidecore.slideapp.slide_access_time.SlideAccessTime()
         last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
         if os.path.exists(last_run_name):
             self.last_run.set_last_time_from_file(filename=last_run_name)
@@ -72,7 +73,7 @@ class SlideMgr:
             if prv_date is None or cur_date > prv_date:
                 print(f'hour:{hour} ---> running')
                 self.work_on_slides(root_dir=self.input_dir,
-                                    file_exten=slideapp.config.input_file_exten,
+                                    file_exten=slidecore.slideapp.config.input_file_exten,
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
@@ -80,9 +81,9 @@ class SlideMgr:
             for dd in range(24):
                 current_time = datetime.datetime.now()
                 hour = current_time.hour
-                if hour in slideapp.config.work_list:
+                if hour in slidecore.slideapp.config.work_list:
                     self.work_on_slides(root_dir=self.input_dir,
-                                        file_exten=slideapp.config.input_file_exten,
+                                        file_exten=slidecore.slideapp.config.input_file_exten,
                                         good_flag=None)
                     print(f'Worked time: {hour}:{current_time.minute}')
                 time.sleep(HOUR)
@@ -114,7 +115,7 @@ class SlideMgr:
     # Work on several slides
     def work_on_slides(self, root_dir: str = None, file_exten='ndpi',good_flag=False):
         pred = self.predictor
-        cur_run = slideapp.slide_access_time.SlideAccessTime()
+        cur_run = slidecore.slideapp.slide_access_time.SlideAccessTime()
         cur_run.set_current_time()
         # update last run
         last_run_name = os.path.join(self.output_dir, SlideMgr.LAST_RUN_FNAME)
@@ -161,7 +162,7 @@ class SlideMgr:
                     extractor = utils.extractor.TileExtractor(slide=fn, outputPath=outputPath,
                                                               saveTiles=True, std_filter=0)
                 else:
-                    extractor = slideapp.dcm_reader.DicomExtractor(file_path=fn, outputPath=outputPath)
+                    extractor = slidecore.slideapp.dcm_reader.DicomExtractor(file_path=fn, outputPath=outputPath)
                     if extractor.tiles_dir is None:
                         continue
                 extractor.run()
@@ -170,7 +171,7 @@ class SlideMgr:
                 out_dir = os.path.join(self.output_dir, base_fn)
                 is_bad,slide_img,ds_img = pred.predict_from_dir(dir_path=outputPath,
                                                out_dir=out_dir,
-                                               percentile = slideapp.config.classifer_slide_thr,
+                                               percentile = slidecore.slideapp.config.classifer_slide_thr,
                                                write_tiles_flag=self.write_tiles_into_out_dir,
                                                tiles_list=extractor.tiles_list,
                                                tile_w=extractor.tile_size, tile_h=extractor.tile_size,
@@ -258,19 +259,19 @@ def parse_args():
 
 if __name__ == "__main__":
     #args = parse_args()
-    sm_app = SlideMgr(input_dir=slideapp.config.input_dir,
-                      classfier_path=slideapp.config.model_path,
-                      output_dir=slideapp.config.out_dir)
+    sm_app = SlideMgr(input_dir=slidecore.slideapp.config.input_dir,
+                      classfier_path=slidecore.slideapp.config.model_path,
+                      output_dir=slidecore.slideapp.config.out_dir)
     # Check if run mode (not test)
-    if slideapp.config.run_flag:
-        print(f'max_working_day:{slideapp.config.max_working_days}')
-        sm_app.run(max_iters=slideapp.config.max_working_days)
+    if slidecore.slideapp.config.run_flag:
+        print(f'max_working_day:{slidecore.slideapp.config.max_working_days}')
+        sm_app.run(max_iters=slidecore.slideapp.config.max_working_days)
         sys.exit(0)
-    res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
-    rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)
+    res_str = f'classifer_tile_thr:{slidecore.slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
+    rstr = sm_app.work_on_slides(root_dir=slidecore.slideapp.config.bad_dir, good_flag=False)
     res_str = f'{res_str}\n{rstr}'
-    if os.path.exists(slideapp.config.good_dir):
-        rstr = sm_app.work_on_slides(root_dir=slideapp.config.good_dir, good_flag=True)
+    if os.path.exists(slidecore.slideapp.config.good_dir):
+        rstr = sm_app.work_on_slides(root_dir=slidecore.slideapp.config.good_dir, good_flag=True)
         res_str = f'{res_str}\n{rstr}'
 
     print(res_str)
