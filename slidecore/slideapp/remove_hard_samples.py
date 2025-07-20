@@ -29,7 +29,7 @@ def get_csv(csv_path=None):
 # Filter all results of classifier whihc have ben classified bu in range[0.5-thr,0.5+thr]
 def filter_csv(df, thr=0.01, pred_path=None):
     pred = slidecore.predict.predict_imgs.PredictImgs(model_path=pred_path,
-                                                                    cls_tile_thr=slideapp.config.classifer_tile_thr)
+                                                                    cls_tile_thr=slidecore.slideapp.config.classifer_tile_thr)
     N, num_cols = df.shape
     for k in range(N):
         img_path,cid = df.iloc[k,1], df.iloc[k,2]

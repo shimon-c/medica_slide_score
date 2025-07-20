@@ -267,7 +267,7 @@ if __name__ == "__main__":
         print(f'max_working_day:{slidecore.slideapp.config.max_working_days}')
         sm_app.run(max_iters=slidecore.slideapp.config.max_working_days)
         sys.exit(0)
-    res_str = f'classifer_tile_thr:{slidecore.slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
+    res_str = f'classifer_tile_thr:{slidecore.slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slidecore.slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slidecore.slideapp.config.bad_dir, good_flag=False)
     res_str = f'{res_str}\n{rstr}'
     if os.path.exists(slidecore.slideapp.config.good_dir):
