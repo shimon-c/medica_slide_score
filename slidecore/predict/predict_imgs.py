@@ -21,14 +21,14 @@ import logging
 
 
 class PredictImgs:
-    def __init__(self, model_path=None, gpu=0,
+    def __init__(self, model_path=None, gpu=False,
                  ensemble_flag=False, inference_size=0,
                  cls_tile_thr=-1):
         if ensemble_flag or 'ensemble' in model_path:
             self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
-            self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
-        devstr = f'cuda:{gpu}' if gpu>0 else 'cpu'
+            self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path, gpu=gpu)
+        devstr = f'cuda:{gpu}' if gpu and gpu>=0 else 'cpu'
         logging.info(f'----> Working GPU:{devstr}')
         print(f'device: ->\t{devstr}')
         self.net = self.net.to(devstr)
