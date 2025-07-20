@@ -1,12 +1,12 @@
 import glob
 import shutil
 
-import slideapp.config
-import utils.install_openslide
+
+import slidecore.slideapp.config
+import slidecore.utils.install_openslide
 # Only at home run this
-utils.install_openslide.add_openslide()
+#slidecore.utils.install_openslide.add_openslide()
 import torch
-import slidecore
 import slidecore.net.ensemble
 from slidecore.net.ensemble import Ensemble as Ensemble
 from slidecore.net.resnet import ResNet as ResNet
@@ -16,7 +16,7 @@ import numpy as np
 import cv2
 import torchvision
 import os
-import utils.extractor
+import slidecore.utils.extractor
 import logging
 
 
@@ -28,7 +28,7 @@ class PredictImgs:
             self.net = slidecore.net.ensemble.Ensemble.load(model_path=model_path)
         else:
             self.net,args, optim_params,sched_params,epoch = slidecore.net.resnet.ResNet.load(model_path)
-        devstr = f'cuda:{gpu}' if gpu>=0 else 'cpu'
+        devstr = f'cuda:{gpu}' if gpu>0 else 'cpu'
         logging.info(f'----> Working GPU:{devstr}')
         print(f'device: ->\t{devstr}')
         self.net = self.net.to(devstr)

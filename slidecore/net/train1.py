@@ -2,7 +2,7 @@ import os.path
 import matplotlib.pyplot as plt
 import torch
 
-import slideapp.config
+import slidecore.slideapp.config
 import slidecore
 import slidecore.net
 #import slidecore.net.gpu_utils

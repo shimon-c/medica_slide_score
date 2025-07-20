@@ -298,8 +298,9 @@ class ResNet(nn.Module):
         return file_path
 
     @staticmethod
-    def load(file_path=None):
-        dct = torch.load(file_path, map_location=torch.device('cpu'))
+    def load(file_path=None, gpu=False):
+        devstr = f'cuda:{gpu}' if gpu and gpu>=0 else 'cpu'
+        dct = torch.load(file_path, map_location=torch.device(devstr))
         args = dct['args']
         resnet = ResNet(args=args)
         resnet.load_state_dict(dct['model_params'])
