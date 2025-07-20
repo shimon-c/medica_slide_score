@@ -7,7 +7,8 @@ DellIfExists ${WS}/build
 ActivateVENV "$venvName"
 
 
-$pyt slidecoach/main_coach.py
+#$pyt slidecoach/main_coach.py
+$pyt slidecore/slideapp/slidemgr.py
 [ $? -ne 0 ] && ExitError
 
 
