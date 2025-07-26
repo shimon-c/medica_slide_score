@@ -35,7 +35,7 @@ class TilesClassifierWorker(Process):
         self._outputPath = args["outputPath"]
         self._workerSumResults = {cl:0 for cl in args["classes"]}
 
-    @Duration(log, msg="Preparing device", logStart=False)
+    @Duration(log, msg="TilesClassifierWorker - Preparing device", logStart=False)
     def _prepare(self):
         self.startTime = time.perf_counter()
         self._pi = PredictImgs(model_path=self._model)

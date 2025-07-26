@@ -40,7 +40,7 @@ class TilesCheckerWorker(Process):
         #self._log = CreateLogger(name=f"{programName}_Worker{self._workerId}",
         #                         logFile=os.path.join(self._outputPath,
         #                        f"{programName}_Worker{self._workerId}.log"))
-    @Duration(log, msg="Preparing device", logStart=False)
+    @Duration(log, msg="TilesCheckerWorker - Preparing device", logStart=False)
     def _prepare(self):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._learn = load_learner(fname=self._model, cpu=device.type=="cpu")
