@@ -2,6 +2,7 @@ import glob
 import shutil
 
 import slideapp.config
+import slideapp.config as cfg
 import utils.install_openslide
 # Only at home run this
 utils.install_openslide.add_openslide()
@@ -163,9 +164,9 @@ class PredictImgs:
             slide_img,margin_problem,ds_img = self.create_slide_img(pred_arr=pred_arr, tiles_list=tiles_list,
                                                             tile_h=tile_h, tile_w=tile_w,
                                                             n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
-            if margin_problem:
-                bad_p = percentile + 0.1
-        defect_flag = bad_p>=percentile or margin_problem
+            # if margin_problem and cfg.report_margin:
+            #     bad_p = percentile + 0.1
+        defect_flag = bad_p>=percentile or (margin_problem and cfg.report_margin)
         cur_dir = bad_dir if defect_flag else good_dir
         if cur_dir is not None:
             pass

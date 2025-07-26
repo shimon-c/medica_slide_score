@@ -125,7 +125,7 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices and those which were already scanned
-        file_names = self.filter_files(files=file_names)
+        #file_names = self.filter_files(files=file_names)
         #file_names = self.last_run.filter_files(files_list=file_names)
         file_names = list(set(file_names))
         print(f'working on: {len(file_names)} files')

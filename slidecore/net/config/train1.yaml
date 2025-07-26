@@ -27,6 +27,7 @@ res_unit_out_relu: True
 hcf_list: [std]
 hcf_list: [LoG]
 hcf_list: [Grad, mean]
+hcf_list: [std, mean]
 dropout: 0
 min_feat_map_size: 4
 weight_decay: 0.0001 #0.0001
