@@ -111,6 +111,10 @@ class SlideMgr:
                     ret_files.append(fn)
         return ret_files
 
+    def print_to_console(self, msg):
+        print("                           ", end='\r')
+        print(f'{msg}', end='\r')
+
     # Work on several slides
     def work_on_slides(self, root_dir: str = None, file_exten='ndpi',good_flag=False):
         pred = self.predictor
