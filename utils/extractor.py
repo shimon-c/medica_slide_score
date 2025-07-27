@@ -53,6 +53,7 @@ class TileExtractorWorker(Process):
             raise Exception(f"Worker - {self._workerId} Failde to open - {self._ndpiSlide}")
         _slide = open_slide(self._ndpiSlide)
         dz = DeepZoomGenerator(_slide, self.tileSize, overlap=1)
+        os.makedirs(self._outputPath, exist_ok=True)
         while True:
             try:
                 data = self._queue.get()
@@ -69,19 +70,28 @@ class TileExtractorWorker(Process):
         self._tileCount += 1
         tilename = f"{col}_{row}.{self._imgFormat}"
         tilepath = os.path.join(f"{self._outputPath}/{tilename}")
+        tilepath = os.path.join(self._outputPath,tilename)
         pilImage = dz.get_tile(self._level, (col, row))
         imgarr = numpy.array(pilImage, dtype=float)
         std = numpy.std(imgarr)
         if std >= self._stdFilter:
-            self._results.put((f"{tilename} Ok {std} ", tilepath, row,col))
+            #self._results.put((f"{tilename} Ok {std} ", tilepath, row,col))
+            self._results.put((tilepath, row, col,1))
             if self._evaluateQueue:
-                self._evaluateQueue.put((self._outputPath, tilename, pilImage, self._outputPath))
+                #self._evaluateQueue.put((self._outputPath, tilename, pilImage, self._outputPath))
+                self._evaluateQueue.put((tilename, row, col))
+
             if self._saveTiles:
                 if not os.path.exists(tilepath):
                     #log.debug(f"Saving tile {tilepath}")
                     pilImage.save(tilepath, quality=90, icc_profile=pilImage.info.get('icc_profile'))
         else:
-            self._results.put(f"{tilename} Filterd {std}")
+            #self._results.put(f"{tilename} Filterd {std}")
+            self._results.put((tilepath, row, col, 0))
+            if self._saveTiles:
+                if not os.path.exists(tilepath):
+                    #log.debug(f"Saving tile {tilepath}")
+                    pilImage.save(tilepath, quality=90, icc_profile=pilImage.info.get('icc_profile'))
 
 
 
@@ -175,7 +185,7 @@ class TileExtractor(object):
         self._workers = workers
         self._workQueue = JoinableQueue(2 * self._workers)
         self._resultQueue = Queue(self.totalTiles+2)
-        self._evaluateQueue = evaluateQueue
+        self._evaluateQueue = Queue(self.totalTiles+2) #evaluateQueue
         self.tiles_list = []
         for i in range(self._workers):
             TileExtractorWorker(workerId=i+1,
@@ -272,7 +282,7 @@ class TileExtractor(object):
             while not self._resultQueue.empty():
                 res = self._resultQueue.get()
                 mFile.write(f"{res}\n")
-                self.tiles_list.append(res[1:])
+                self.tiles_list.append(res)
                 tiles += 1
         if self.totalTiles != tiles:
             log.debug (f"Error expected - {self.totalTiles} but extracted - {tiles}")

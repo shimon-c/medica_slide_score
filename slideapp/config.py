@@ -1,14 +1,18 @@
 model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
 model_path=r"E:\medica_classifier\resnet_epoch_17_0.924198.pt"
+model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\medica_slide_score\model\resnet_epoch_13_arccos_0.9479103573.pt"
 inference_size=0
 bad_dir=r"D:\medica_data\ReScan_bad"
 good_dir=r""
-out_dir=r"D:\medica_output"
+out_dir=r"D:write\medica_output"
 classifer_tile_thr=0.4 # 0.4  #0.4           # 0.5
-classifer_slide_thr=0.001                #  0.3
-slide_img_down_sample=2
+classifer_slide_thr=0.3             #0.001,0.3
+report_margin = False
+slide_img_down_sample=16 #2,4
+max_working_days = 1    # How many days to work
 tile_std_thr=30
-write_tiles_into_out_dir = False         # For train purposes
+clip_grad_val=0.8
+write_tiles_into_out_dir = True         # For train purposes
 bad_dir = r"E:\medica_data\ReScan_bad"
 good_dir=r"E:\medica_data\ReScan_God"
 # The root point at which results will be written to
@@ -21,7 +25,7 @@ white_std = 1.663167324510908
 white_conf = 3
 tissue_mean=201.8
 tissue_std=40.6
-tissue_z_thr = 2  # 0.5
+tissue_z_thr = 0.5  # 0.5
 tissue_anova_thr = 0.2
 
 # work at lab
@@ -32,6 +36,7 @@ model_path="/mnt/medica/medica_classifier/resnet_epoch_219_98.862_v1.0.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_214_98.3399_v1.1.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_419_99.49_v1.1.pt"
 model_path="/mnt/medica/medica_classifier/ensemble_model/ensemble_v1.1.pt"
+model_path=r"E:\medica_classifier\resnet_epoch_13_arccos_0.9479103573.pt"
 
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
@@ -39,7 +44,10 @@ input_file_exten='ndpi'         # "dcm" or "ndpi"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24/bad"
 input_dir="/home/shimon/hama2/"
 out_dir="/mnt/medica/medica_data/test_crone_folder_out"
-out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
+input_dir=r"E:\medica_data\test_folder_for_train"
+input_dir=r"C:\Users\shimon.cohen\data\medica\raw\only-good\ANON1RSJUI16C\01-01_01 HE 01-01-01_0"
+out_dir=r"E:\medica_data\test_folder_for_train_result"
+#out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
 # input_dir="/mnt/medica/medica_data/to_debug"
 # out_dir="/mnt/medica/medica_data/debug_out"
 #input_dir="/home/shimon/Desktop/sectra-9.12.24"

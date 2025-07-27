@@ -12,7 +12,7 @@ from datetime import date
 import cv2
 import datetime
 import slideapp.slide_access_time
-import slideapp.dcm_reader
+#import slideapp.dcm_reader
 import pathlib
 # https://www.geeksforgeeks.org/send-mail-attachment-gmail-account-using-python/
 import smtplib          # to send emails every day
@@ -76,6 +76,7 @@ class SlideMgr:
                                     good_flag=None)
             # Sleep for an hour
             prv_date = cur_date
+            return      # just for now
             for dd in range(24):
                 current_time = datetime.datetime.now()
                 hour = current_time.hour
@@ -124,9 +125,10 @@ class SlideMgr:
         # file_names = glob.glob(search_pat, recursive=True)
         file_names = slidecore.predict.predict_imgs.collect_slides(root_dir=root_dir, file_exten=file_exten)
         # Just for now filter colored slices and those which were already scanned
-        file_names = self.filter_files(files=file_names)
-        file_names = self.last_run.filter_files(files_list=file_names)
+        #file_names = self.filter_files(files=file_names)
+        #file_names = self.last_run.filter_files(files_list=file_names)
         file_names = list(set(file_names))
+        print(f'working on: {len(file_names)} files')
         work_list = []
         num_bad = 0
         num_good = 0
@@ -214,9 +216,14 @@ class SlideMgr:
                     # Without ndpi files
                     # if not path.is_symlink():
                     #     shutil.copy(fn, new_fn)
+                    ds_file_name = f'{new_fn}_DS.jpg'
                     new_fn = f'{new_fn}.jpg'
                     if slide_img is not None:
                         cv2.imwrite(filename=new_fn,img=slide_img)
+                        cv2.imwrite(filename=ds_file_name, img=ds_img)
+                        print(f'----> wrote: {new_fn}\n {ds_file_name}')
+                        del slide_img
+                        del ds_img
                 except Exception as e:
                     print(f'caught exception: {e}')
             # del extractor
@@ -261,7 +268,8 @@ if __name__ == "__main__":
                       output_dir=slideapp.config.out_dir)
     # Check if run mode (not test)
     if slideapp.config.run_flag:
-        sm_app.run()
+        print(f'max_working_day:{slideapp.config.max_working_days}')
+        sm_app.run(max_iters=slideapp.config.max_working_days)
         sys.exit(0)
     res_str = f'classifer_tile_thr:{slideapp.config.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{slideapp.config.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=slideapp.config.bad_dir, good_flag=False)

@@ -93,7 +93,7 @@ class DataSet(TorchDataset):
             #aug_list.append(A.Resize(height=ysize, width=xsize))
             aug_list.append(A.RandomResizedCrop(height=ysize, width=xsize))
             self.augs = Compose(aug_list)
-        if train_csv_file is None:
+        if train_csv_file is None or train_csv_file=="":
             # Old method
             self.good_images = self.load_images_from_root_dir(root_dir=good_path, names_list=self.good_images)
             for img in self.good_images:
