@@ -99,6 +99,10 @@ class PredictImgs:
                     files_list.append(fname)
         return files_list
 
+    def print_to_console(self, msg):
+        print("                           ", end='\r', flush=True)
+        print(f'{msg}', end='\r', flush=True)
+
     @torch.no_grad()
     def predict_from_dir(self, dir_path:str=None,
                          out_dir=None,
@@ -127,6 +131,7 @@ class PredictImgs:
             os.makedirs(good_dir, exist_ok=True)
         self.num_bad = 0
         pred_list = []
+        cls_list = []
         ret_tiles_list = []
         N = len(file_names)
         k = 0
@@ -141,6 +146,7 @@ class PredictImgs:
 
             for kk in range(len(img_list)):
                 id = np.argmax(y_cur[kk,:])
+                cls_list.append(id)
                 cid = 1 if id == 1 else 0
                 pr_bad = y_cur[kk, 1]
                 if self.cls_tile_thr > 0: #and cid!= 1:
@@ -162,6 +168,8 @@ class PredictImgs:
                     img_name = os.path.join(cur_dir, img_name)
                     cv2.imwrite(img_name, img_list[kk])
             k += len(img_list)
+            #self.print_to_console(f'classifying work done: {k/N}, ({k}/{N})')
+            print(f'classifying work done: {k / N}, ({k}/{N})')
         pred_arr = np.array(pred_list)
         nones = np.sum(pred_arr>0)
         bad_p = nones/len(pred_list)
@@ -172,7 +180,12 @@ class PredictImgs:
                                                             n_tile_rows=n_tile_rows, n_tile_cols=n_tile_cols)
             # if margin_problem and cfg.report_margin:
             #     bad_p = percentile + 0.1
-        defect_flag = bad_p>=percentile or (margin_problem and conf.report_margin)
+        cls_pred_arr = np.array(cls_list)
+        num_good = np.sum(cls_pred_arr<=0)
+        num_bad = np.sum(cls_pred_arr==1)
+        defect_flag = bad_p>=percentile or (margin_problem and cfg.report_margin)
+        if num_bad >= num_good:
+            defect_flag = True
         cur_dir = bad_dir if defect_flag else good_dir
         if cur_dir is not None:
             pass
