@@ -276,7 +276,9 @@ if __name__ == "__main__":
     if conf.run_flag:
         print(f'max_working_day:{conf.max_working_days}')
         sm_app.run(max_iters=conf.max_working_days)
-#        sys.exit(0)
+        sys.exit(0)
+
+
     res_str = f'classifer_tile_thr:{conf.classifer_slide_thr}\tclassifclassifer_tile_threr_slide_thr:{conf.classifer_tile_thr}'
     rstr = sm_app.work_on_slides(root_dir=conf.bad_dir, good_flag=False)
     res_str = f'{res_str}\n{rstr}'
