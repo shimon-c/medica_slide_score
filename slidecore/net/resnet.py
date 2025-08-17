@@ -239,11 +239,11 @@ class ResNet(nn.Module):
         #X = self.resize_ten(X)
         X = self.norm(X)
 
-
-        if self.log_var:
-            N,C,H,W = X.shape
-            log_ten = log_ten.reshape((N, 1, H, W))
-            X = torch.cat((X,log_ten), dim=1)
+        # Need it as HCF and not as a tensor to remove noise
+        # if self.log_var:
+        #     N,C,H,W = X.shape
+        #     log_ten = log_ten.reshape((N, 1, H, W))
+        #     X = torch.cat((X,log_ten), dim=1)
         for lay in self.layers_list:
             X = lay(X)
         N,C,H,W = X.shape
@@ -264,7 +264,7 @@ class ResNet(nn.Module):
             XX = torch.cat((XX, mean_val), dim=1)
         if self.grad_val:
             grad_val = grad_val.view(N, 1)
-            grad_val /= self.max_gray_level
+
             XX = torch.cat((XX, grad_val), dim=1)
         if self.std2mean:
             std2mean = SV/mean_val

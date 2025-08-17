@@ -59,7 +59,7 @@ test_bad: 'BadFocus'
 end_str: '.jpeg'
 
 nepochs: 420
-num_workers: 4
+num_workers: 8
 
 augmentations: [RandomScale, GaussNoise, Blur, OpticalDistortion, Flip]
 augmentations: [GaussNoise, Blur, OpticalDistortion, Flip]
