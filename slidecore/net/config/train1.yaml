@@ -13,21 +13,21 @@ arch: [[6,3],[6,3], [12,3], [14,3], [28,4], [56,6],[128,3]]
 #arch: [[6,3], [6,3], [12,3], [32,3], [128,3], [128,3]]
 #arch: [[16,3], [32,3], [64,3], [128,3], [128,3]]
 head_arch: [3000, 3000]
-head_arch: [2048, 2048, 1024]
+#head_arch: [2048, 2048, 1024]
 #head_arch: [2048, 2048]
 resnet50: True
 shortcut2: False
-arc_cos_rad: 32     # to arcocs training
+arc_cos_rad: -32     # to arcocs training
 arc_cos_margin: 0.1
-clip_grad_val: 0.7
+clip_grad_val: -0.6
 gpu: 0
 in_ch: 3
 out_cls: 3 # 3
 res_unit_out_relu: True
 hcf_list: [std]
 hcf_list: [LoG]
-hcf_list: [Grad, mean]
-hcf_list: [std, mean]
+hcf_list: [Grad, mean,std, std2mean]
+#hcf_list: [std, mean]
 dropout: 0
 min_feat_map_size: 4
 weight_decay: 0.0001 #0.0001

@@ -44,7 +44,8 @@ def train_epoch(net=None, loader=None, optim=None, loss_obj=None, device=None):
         labs = labs.reshape((N,))
         loss = loss_obj(outputs, labs)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=slideapp.config.clip_grad_val)
+        if slideapp.config.clip_grad_val>0:
+            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=slideapp.config.clip_grad_val)
         optim.step()
         train_loss += loss.item()
         _,preds = outputs.max(1)
