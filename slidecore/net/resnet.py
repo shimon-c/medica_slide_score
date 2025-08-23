@@ -143,14 +143,17 @@ class ResNet(nn.Module):
         self.log_var = 'LoG' in args['hcf_list']
         self.grad_val = 'Grad' in args['hcf_list']
         self.mean_val = 'mean' in args['hcf_list']
+        self.rgb_flag = 'RGB' in args['hcf_list']
         self.std2mean = 'std2mean' in args['hcf_list']
         head_hcf = 0
         if self.log_var:
-            in_ch += 1
+            self.log_var = slidecore.net.calc_drv.LOG()
+            head_hcf += 1
         if self.grad_val: head_hcf+=1
         if self.mean_val: head_hcf+=1
         if self.std_flag: head_hcf+=1
         if self.std2mean: head_hcf+=1
+        if self.rgb_flag: head_hcf +=1
         min_feat_map_size = args.get('min_feat_map_size', 2)
         self.dropout = None
         self.max_hcfs = []
@@ -224,8 +227,7 @@ class ResNet(nn.Module):
             XV = X.view(X.size(0), -1)
             std_val = torch.std(XV, dim=1)
             std_val /= self.max_gray_level
-        if self.log_var:
-            log_ten, log_var = slidecore.net.calc_drv.compute_LoG(X)
+
         if self.mean_val or self.std2mean:
             mean_val = torch.mean(XV, dim=1)
             mean_val /= self.max_gray_level
@@ -238,7 +240,18 @@ class ResNet(nn.Module):
         # resize the tensor to what we have been train with
         #X = self.resize_ten(X)
         X = self.norm(X)
-
+        log_var, rgb_val = -1, None
+        if self.log_var:
+            log_ten  = self.log_var(X)
+            log_ten = log_ten.view(N,-1)
+            log_var = torch.mean(log_ten, dim=1)
+        if self.rgb_flag:
+            X0 = X[:,0,...]
+            X0 = X0.view(N,-1)
+            red_val = torch.mean(X0, dim=1)
+            X1 = X.view(N,-1)
+            r_all = torch.mean(X1,dim=1)
+            rgb_val = red_val/(red_val+r_all)
         # Need it as HCF and not as a tensor to remove noise
         # if self.log_var:
         #     N,C,H,W = X.shape
@@ -269,6 +282,11 @@ class ResNet(nn.Module):
         if self.std2mean:
             std2mean = SV/mean_val
             XX = torch.cat((XX, std2mean), dim=1)
+        if self.log_var:
+            log_var = log_var.reshape(N, 1)
+            XX = torch.cat((XX,log_var), dim=1)
+        if self.rgb_flag:
+            XX = torch.cat((XX, rgb_val), dim=1)
         Y = self.head(XX, target=target)
         return Y
 

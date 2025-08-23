@@ -2,6 +2,33 @@ import torch
 import numpy as np
 import cv2 as cv2
 
+class LOG(torch.nn.Module):
+    def __init__(self, num_ch=3, grad_flag=False):
+        super(LOG, self).__init__()
+        ten = torch.tensor( [[0,1,0],
+                             [1,-4,1],
+                             [0,1,0]], dtype=torch.float32)
+        ten = ten/8
+        self.cnv = torch.nn.Conv2d(in_channels=1,out_channels=1,stride=1,padding=1,kernel_size=3)
+        self.cnv.weight = torch.nn.Parameter(ten.unsqueeze(0).unsqueeze(0))
+        self.cnv.requires_grad_(grad_flag)
+        self.grad_flag = grad_flag
+        if not grad_flag:
+            self.cnv.eval()
+
+    def forward(self,X):
+        X_n = torch.mean(X.float(),dim=1,keepdim=True)
+        if self.grad_flag is False:
+            with torch.no_grad():
+                Y = self.cnv(X_n)
+        else:
+            Y = self.cnv(X_n)
+        return Y
+
+    def get_LoG_feature(self, X):
+        Y = self(X)
+        log_g = torch.mean(torch.abs(X))
+        return log_g
 
 def compute_dx(x):
     N, C, H, W = x.shape
@@ -31,20 +58,9 @@ def compute_dy(x):
 
 def compute_LoG(x, LoG_thr=10):
     N, C, H, W = x.shape
-    if x.dtype != torch.float32:
-        x = x.type(torch.float32)
-    x = torch.mean(x, dim=1)
-    z_x = torch.zeros_like(x)
-
-    z_x[:,1:-1,1:-1] = -x[:,1:-1,1:-1]*4 + x[:,0:-2,1:-1] + x[:,2:,1:-1] + x[:,1:-1,2:] + x[:,1:-1,0:-2]
-    # zids = z_x<=LoG_thr
-    # z_x[zids] = 0
-
-    z_v = z_x.view((N,W*H))
-    # oids = z_v > LoG_thr
-    # var_z = torch.std(z_v[oids], dim=1)
-    var_z = torch.std(z_v, dim=1,keepdim=True)
-    var_z = var_z/(4*255)
+    log_cnv = LOG()
+    z_x = log_cnv(x)
+    var_z = torch.mean(torch.abs(z_x))
     return z_x, var_z
 
 
@@ -107,7 +123,9 @@ def vertical_on_image(img_path:str=None):
     filename = f'{img_path}_grad.jpeg'
     #cv2.imwrite(filename, grad)
     print(f'image-grad:{filename}')
+
     z_x, v_z = compute_LoG(ten)
+    z_x = z_x.reshape((1, H, W))
     print(f'LoG var: {v_z}')
     z_x = torch.permute(z_x, (1, 2, 0))
     LoG = z_x.numpy()
@@ -119,13 +137,12 @@ def vertical_on_image(img_path:str=None):
     grad = cv2.cvtColor(grad,cv2.COLOR_GRAY2BGR)
     plt.imshow(grad)
     plt.subplot(1,3,3)
+    plt.title("LoG")
     LoG = cv2.cvtColor(LoG, cv2.COLOR_GRAY2BGR)
     plt.imshow(LoG, cmap='gray')
     plt.show()
 
 if __name__ == "__main__":
-
-
     def prepare_tens():
         sz = 6
         ten = torch.ones((2,3,sz,sz+4))

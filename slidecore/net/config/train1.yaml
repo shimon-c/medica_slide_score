@@ -19,14 +19,15 @@ resnet50: True
 shortcut2: False
 arc_cos_rad: -32     # to arcocs training
 arc_cos_margin: 0.1
-clip_grad_val: -0.6
+clip_grad_val: 0.8
 gpu: 0
 in_ch: 3
 out_cls: 3 # 3
 res_unit_out_relu: True
 hcf_list: [std]
 hcf_list: [LoG]
-hcf_list: [Grad, mean,std, std2mean]
+hcf_list: [Grad, mean,std, std2mean, LoG, RGB]
+hcf_list: [Grad, mean,std, std2mean, LoG]
 #hcf_list: [std, mean]
 dropout: 0
 min_feat_map_size: 4
@@ -44,13 +45,15 @@ train_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set'
 #train_csv_file: 'C:\Users\shimon.cohen\data\medica\imgdb\db_train_set\train_set\good_bad_train_shimon.cohen.csv'
 #train_csv_file: '/mnt/medica/medica_data/merged_train.csv'checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
 #test_csv_file: '/mnt/medica/medica_data/merged_train.csv'
+train_set_dir: 'E:\medica_old_data\imgdb\db_train_set\train_set'
+test_set_dir: 'E:\medica_old_data\imgdb\db_test_set\test_set'
 train_csv_file: ""
 test_csv_file: ""
 #checkpoints_dir: '/mnt/medica/checkpoints'
 checkpoints_dir: 'C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\checkpoints'
 checkpoints_dir: 'E:\medica\checkpoints'
 #test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\imgdb\test_set'
-test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
+#test_set_dir: 'C:\Users\shimon.cohen\data\medica\imgdb\db_test_set\test_set'
 train_good: 'GoodFocus'
 train_bad: 'BadFocus'
 train_relv: 'NotRelevant'
