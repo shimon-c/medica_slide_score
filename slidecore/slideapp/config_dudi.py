@@ -7,14 +7,14 @@ max_working_days = 1    # How many days to work
 tile_std_thr=30
 clip_grad_val=0.8
 write_tiles_into_out_dir = True         # For train purposes
-bad_dir = r"/home/dudi/dev/patology/slidecore/output/ReScan_bad"
-good_dir=r"/home/dudi/dev/patology/slidecore/output/ReScan_Good"
+bad_dir = r"/home/dudi/dev/pathology/raw_data/bad"
+good_dir=r"/home/dudi/dev/pathology/raw_data/good"
 # The root point at which results will be written to
-input_dir=bad_dir
+input_dir=good_dir
 # out_dir is deleted by shimon on run
-out_dir=r"/home/dudi/dev/patology/slidecore/output/results"
-log_dir=r"/home/dudi/dev/patology/slidecore/output"
-tiles_working_dir=r"/home/dudi/dev/patology/slidecore/output/tiles_dir"
+out_dir=r"/home/dudi/dev/pathology/slidecore/output/results_good"
+log_dir=r"/home/dudi/dev/pathology/slidecore/output"
+tiles_working_dir=r"/home/dudi/dev/pathology/slidecore/output/tiles_dir"
 run_flag = True     # Run mode
 white_mean = 235.79956452889942
 white_std = 1.663167324510908
@@ -34,7 +34,7 @@ tissue_anova_thr = 0.2
 # model_path="/mnt/medica/medica_classifier/ensemble_model/ensemble_v1.1.pt"
 # model_path=r"E:\medica_classifier\resnet_epoch_13_arccos_0.9479103573.pt"
 # model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
-model_path=r"/home/dudi/dev/patology/slidecore/model/resnet_epoch_13_arccos_0.9479103573.pt"
+model_path=r"/home/dudi/dev/pathology/slidecore/model/resnet_epoch_13_arccos_0.9479103573.pt"
 
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
