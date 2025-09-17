@@ -44,7 +44,8 @@ def train_epoch(net=None, loader=None, optim=None, loss_obj=None, device=None):
         labs = labs.reshape((N,))
         loss = loss_obj(outputs, labs)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=slidecore.slideapp.config.clip_grad_val)
+        if slidecore.slideapp.config.clip_grad_val>0:
+            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=slidecore.slideapp.config.clip_grad_val)
         optim.step()
         train_loss += loss.item()
         _,preds = outputs.max(1)
@@ -138,10 +139,15 @@ def train(args, log_obj=None):
     log_obj.info('------------- ARGS ------------')
     log_obj.info(str(args))
     log_obj.info('-------------------------------')
+    best_ep = -1
+    best_acc = -1
     for ep in range(nepochs):
         train_loss, tr_acc = train_epoch(net=resnet, loader=tr_loader, optim=optim,
                                          loss_obj=loss_obj, device=device)
         test_acc,_ = compute_acc(net=resnet, loader=test_ld, device=device)
+        if best_acc<test_acc:
+            best_acc = test_acc
+            best_ep = ep
         model_path = os.path.join(checkpoint_dir, f'resnet_epoch_{ep}.pt')
         save_name = resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
         #test_net(save_name, loader=test_ld)
@@ -153,7 +159,7 @@ def train(args, log_obj=None):
     model_path = os.path.join(checkpoint_dir, 'resnet.pt')
     resnet.save(file_path=model_path, optim=optim, sched=sched, epoch=ep)
     print(f'Final accuracy:{test_acc}, conf_mat:\n{cmat}\nmodel:{model_path}')
-    print(f'checkpoints:{checkpoint_dir}')
+    print(f'checkpoints:{checkpoint_dir}, best epoch:{best_ep}, best_acc:{best_acc}')
     dmat = sklearn.metrics.ConfusionMatrixDisplay(cmat)
     dmat.plot()
     plt.show()

@@ -1,6 +1,6 @@
 model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\model\output_model\resnet_epoch_17_0.924198.pt"
 model_path=r"E:\medica_classifier\resnet_epoch_17_0.924198.pt"
-model_path=r"C:\Users\shimon.cohen\PycharmProjects\new_slidecore\medica_slide_score\model\resnet_epoch_13_arccos_0.9479103573.pt"
+
 inference_size=0
 bad_dir=r"D:\medica_data\ReScan_bad"
 good_dir=r""
@@ -8,7 +8,7 @@ out_dir=r"D:write\medica_output"
 classifer_tile_thr=0.4 # 0.4  #0.4           # 0.5
 classifer_slide_thr=0.3             #0.001,0.3
 report_margin = False
-slide_img_down_sample=16 #2,4
+slide_img_down_sample=8 #2,4
 max_working_days = 1    # How many days to work
 tile_std_thr=30
 clip_grad_val=0.8
@@ -37,6 +37,7 @@ model_path="/mnt/medica/medica_classifier/resnet_epoch_214_98.3399_v1.1.pt"
 model_path="/mnt/medica/medica_classifier/resnet_epoch_419_99.49_v1.1.pt"
 model_path="/mnt/medica/medica_classifier/ensemble_model/ensemble_v1.1.pt"
 model_path=r"E:\medica_classifier\resnet_epoch_13_arccos_0.9479103573.pt"
+model_path=r"C:\Users\shimon.cohen\data\medica\model\resnet_epoch_167_0.940251572327044.pt"
 
 #input_dir="/mnt/medica/medica_data/ReScan_bad"
 #input_dir="/home/shimon/hama-test"
@@ -47,6 +48,8 @@ out_dir="/mnt/medica/medica_data/test_crone_folder_out"
 input_dir=r"E:\medica_data\test_folder_for_train"
 input_dir=r"C:\Users\shimon.cohen\data\medica\raw\only-good\ANON1RSJUI16C\01-01_01 HE 01-01-01_0"
 input_dir=r"C:\Users\shimon.cohen\data\medica\raw\only-bad\Only-Bad"
+input_dir=r"C:\Users\shimon.cohen\data\medica\raw"
+input_dir=r"E:\medica_old_data\raw"
 out_dir=r"E:\medica_data\test_folder_for_train_result"
 #out_dir="/mnt/medica/medica_data/test_crone_folder_out_v1.1"
 # input_dir="/mnt/medica/medica_data/to_debug"
